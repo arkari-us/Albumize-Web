@@ -21,14 +21,35 @@ function App() {
       });
   }, []);
 
-  return (
+  if (data.status == 401)
+    return (<AuthButton />);
+  else if (data.err) return (<>{JSON.stringify(data.err)}</>);
+  else if (data.albums) return (
     <>
       <ul>
-        <li>Data: {data ? JSON.stringify(data) : 'No album data'}</li>
+        {data.albums.map(album => {return(
+          <li key={album.id}>
+            <a href={'https://open.spotify.com/album/' + album.id}>
+              {album.name}
+            </a>
+            &nbsp;--&nbsp;
+            {album.artists.map((artist, index) => {return(
+              <>
+                {(index ? ', ' : '')}
+                <a href={artist.external_urls.spotify}>
+                  {artist.name}
+                </a>
+              </>
+            )})}
+            <br />
+            {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')} 
+          </li>
+        )})}
       </ul>
-      {(data.status==401) ? <AuthButton />  : null }
     </>
   );
+  else
+    return (<>loading</>);
 }
 
 export default App;
