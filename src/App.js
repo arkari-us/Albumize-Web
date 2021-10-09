@@ -8,6 +8,33 @@ const AuthButton = () => (
   </a>
 )
 
+const AlbumList = (props) => (
+  <div class='albumListGrid'>
+    {props.albums.map(album => {return(
+      <a href={'https://open.spotify.com/album/' + album.id}>
+      <div class='albumListItem'>
+        <div><img src={album.images[1].url} alt={album.name + 'album cover'} width="100%" /></div>
+        <div class="albumInfo">
+          <div class="albumTitle">
+            {album.name}</div>
+          <div class="artistList">
+            {album.artists.map((artist, index) => {return(
+            <>
+              {(index ? ', ' : '')}
+              <a href={artist.external_urls.spotify}>
+                {artist.name}
+              </a>
+            </>
+            )})}
+          </div>
+          <div class="albumType">{album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')} </div>
+        </div>
+      </div>
+      </a>
+    )})}
+  </div>
+)
+
 function App() {
   const [data, setData] = useState({});
 
@@ -21,35 +48,10 @@ function App() {
       });
   }, []);
 
-  if (data.status == 401)
-    return (<AuthButton />);
+  if (data.status == 401) return (<AuthButton />);
   else if (data.err) return (<>{JSON.stringify(data.err)}</>);
-  else if (data.albums) return (
-    <>
-      <ul>
-        {data.albums.map(album => {return(
-          <li key={album.id}>
-            <a href={'https://open.spotify.com/album/' + album.id}>
-              {album.name}
-            </a>
-            &nbsp;--&nbsp;
-            {album.artists.map((artist, index) => {return(
-              <>
-                {(index ? ', ' : '')}
-                <a href={artist.external_urls.spotify}>
-                  {artist.name}
-                </a>
-              </>
-            )})}
-            <br />
-            {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')} 
-          </li>
-        )})}
-      </ul>
-    </>
-  );
-  else
-    return (<>loading</>);
+  else if (data.albums) return (<AlbumList albums={data.albums} />);
+  else return (<>loading</>);
 }
 
 export default App;
