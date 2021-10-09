@@ -7,21 +7,23 @@ a {
   text-decoration: inherit;
 }
 
+body {
+  background-color: #4DA167;
+}
+
 .albumListGrid {
   display: grid;
   grid-template-columns: repeat(6,300px);
   grid-auto-rows: minmax(300,500);
   grid-auto-flow: row dense;
   gap: 5px;
-  background: #DDDDDD;
   width: auto;
 }
 
 .albumListItem {
-  background-color: cadetblue;
-  color: black;
+  background-color: #4D5057;
   border-radius: 5px;
-  padding: 0px;
+  padding: 3px;
   min-width: 0;
   min-height: 0;
   display: grid;
@@ -29,8 +31,12 @@ a {
   grid-template-rows: 300px auto;
 }
 
+.albumListItem:hover {
+  background-color: #4E6E5D;
+}
+
 .albumInfo {
-  padding: 5px;
+  padding: 0px repeat(3, 5px);
   width: calc(100%);
   font-family: Arial, Helvetica, sans-serif;
   text-overflow: ellipsis;
@@ -43,13 +49,16 @@ a {
   font-weight: bolder;
   font-size: 25px;
   display: block;
+  color: #EFEFEF;
 }
 
 .artistList {
   font-weight: bold;
   font-size: 18px;
   display: block;
+  color: #EFEFEF;
 }
-/* 
+
 .albumType {
-} */
+  color: #CFCFCF;
+} 
