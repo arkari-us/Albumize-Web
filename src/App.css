@@ -13,8 +13,7 @@ body {
 
 .albumListGrid {
   display: grid;
-  grid-template-columns: repeat(6,300px);
-  grid-auto-rows: minmax(300,500);
+  grid-template-columns: repeat(auto-fit, 300px);
   grid-auto-flow: row dense;
   gap: 5px;
   width: auto;
@@ -23,7 +22,7 @@ body {
 .albumListItem {
   background-color: #4D5057;
   border-radius: 5px;
-  padding: 3px;
+  padding: 5px;
   min-width: 0;
   min-height: 0;
   display: grid;
@@ -36,13 +35,11 @@ body {
 }
 
 .albumInfo {
-  padding: 0px repeat(3, 5px);
-  width: calc(100%);
+  padding: 0px 5px 5px 5px;
   font-family: Arial, Helvetica, sans-serif;
-  text-overflow: ellipsis;
+  display: block;
   overflow: hidden;
   white-space: nowrap;
-  display: block;
 }
 
 .albumTitle {
@@ -50,6 +47,9 @@ body {
   font-size: 25px;
   display: block;
   color: #EFEFEF;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .artistList {
@@ -57,6 +57,9 @@ body {
   font-size: 18px;
   display: block;
   color: #EFEFEF;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .albumType {
