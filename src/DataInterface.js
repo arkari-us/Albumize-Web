@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const DataInterface = {
   async getAlbums(playlistID = '') {
-    const uri = 'https://www.arkari.us/albumize/api/albums';
+    const uri = 'https://arkari.us/albumize/api/albums/releaseradar';
 
     return axios.get(uri, {})
       .then((res) => {
