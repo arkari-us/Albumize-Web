@@ -21,9 +21,7 @@ const AlbumList = (props) => (
             {album.artists.map((artist, index) => {return(
             <>
               {(index ? ', ' : '')}
-              <a href={artist.external_urls.spotify}>
-                {artist.name}
-              </a>
+              {artist.name}
             </>
             )})}
           </div>
