@@ -81,13 +81,18 @@ function App() {
   }
 
   const newPlaylist = () => {
-    DataInterface.createNewPlaylist(albumsToSend)
-      .then((data) => {
-        alert(`Playlist created with id ${data.id}`);
-      })
-      .catch((err) => {
-        alert(`Error creating album: ${err}`)
-      });
+    if (albumsToSend.length == 0) {
+      alert('Please select at least one album to export.');
+    }
+    else{
+      DataInterface.createNewPlaylist(albumsToSend)
+        .then((id) => {
+          alert(`Playlist created with id ${id}`);
+        })
+        .catch((err) => {
+          alert(`Error creating album: ${err}`)
+        });
+    }
   }
 
   if (data.status == 401) return (<AuthButton />);
