@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+}
+
 const DataInterface = {
   async getAlbums(playlistID = '') {
     const uri = 'https://arkari.us/albumize/api/albums/releaseradar';
@@ -19,10 +24,12 @@ const DataInterface = {
   
   async createNewPlaylist(albums) {
     return axios.post(
-      `https://arkari.us/albumize/api/playlists/newplaylist?albums=${albums.join(',')}`
+      `https://arkari.us/albumize/api/playlists/newplaylist`,
+      {albums: albums},
+      headers
     )
       .then((res) => {
-        return res.data;
+        return res.data.id;
       })
       .catch((err) => {
         return err.response.data;

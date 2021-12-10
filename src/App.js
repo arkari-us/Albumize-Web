@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 const AppBody = (props) => (
   <>
     <div class='appBody'>
-      <Header username={props.username} submit={props.submit} />
       <AlbumList albums={props.albums} update={props.update} />
     </div>
   </>
@@ -18,34 +17,41 @@ const AuthButton = () => (
   </a>
 )
 
-const Header = (props) => (
-  <div>
-    <p>Albumize list for user: {props.username} | <button onClick={props.submit}>Create playlist</button></p>
-  </div>
-)
+function Header (props) {
+  if (props.username) {
+    return (
+      <div>
+        <p>Albumize list for user: {props.username} | <button onClick={props.submit}>Create playlist</button></p>
+      </div>
+    )
+  }
+}
 
 function AlbumList (props) {
-
   return(
   <div class='albumListGrid'>
     {props.albums.map(album => {return(
-      <div class='albumListItem'>
-        <div><img src={album.images[1].url} alt={album.name + 'album cover'} width="100%" /></div>
-        <div class="albumInfo">
-          <div class="albumTitle">
-            {album.name}</div>
-          <div class="artistList">
-            {album.artists.map((artist, index) => {return(
-            <>
-              {(index ? ', ' : '')}
-              {artist.name}
-            </>
-            )})}
-          </div>
-          <div class="albumType">{album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')} </div>
-          <input type='checkbox' onChange={(e) => props.update(album.id,e.target.checked) } />
+      <label>
+        <div class='albumListItem'>
+            <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+            <div class="albumInfo">
+              <div class="albumTitle">
+                {album.name} 
+              </div>
+              <div class="artistList">{album.artists.map((artist, index) => {return(
+                <>
+                  {(index ? ', ' : '')}
+                  {artist.name}
+                </>
+                )})}
+              </div>
+              <div class="albumType">
+                {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
+                <input type='checkbox' onChange={(e) => props.update(album.id,e.target.checked) } />
+              </div>
+            </div>
         </div>
-      </div>
+      </label>
     )})}
   </div>
   );
@@ -97,7 +103,11 @@ function App() {
 
   if (data.status == 401) return (<AuthButton />);
   else if (data.err) return (<>{JSON.stringify(data.err)}</>);
-  else if (data.albums) return (<AppBody albums={data.albums} update={updateAlbumsToSend} submit={newPlaylist} username={username} />);
+  else if (data.albums) return (
+  <>
+    <Header username={username} submit={newPlaylist} />
+    <AppBody albums={data.albums} update={updateAlbumsToSend} />
+  </>);
   else return (<>loading</>);
 }
 
