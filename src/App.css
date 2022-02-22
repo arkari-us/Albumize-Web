@@ -1,4 +1,44 @@
-div {
+@media (prefers-color-scheme: dark) {
+  
+}
+
+@media (prefers-color-scheme: light) {
+
+}
+
+@media only screen and (max-width:600px) {
+  :root {
+    --headerPadding: 5px calc(3% + 5px) 5px calc(3% + 5px);
+    --headerSize: 40px;
+    --headerFontSize: 20px;
+    --albumGridPadding: 5px;
+  }
+}
+
+@media only screen and (min-width:600px) {
+  :root {
+    --headerPadding: 10px calc(15% + 5px) 10px calc(15% + 5px);
+    --headerSize: 50px;
+    --headerFontSize: 32px;
+    --albumGridPadding: 10px 15% 10px 15%;
+  }
+}
+
+:root {
+  --primary: #121212;
+  --secondary: #292929;
+  --secondaryshadow: #191919;
+  --tertiary: #3D473D;
+  --tertiaryhover: #4D574D;
+  --text: #F5F5F5;
+  --accent: #A6D257;
+}
+
+html, body {
+  height: 100%;
+}
+
+* {
   box-sizing: border-box;
 }
 
@@ -7,51 +47,128 @@ a {
   text-decoration: inherit;
 }
 
-body {
-  background-color: #4DA167;
+#app {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height:100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
 }
 
-.appBody {
+#header {
+  background-color: var(--primary);
+  color: var(--text);
+  margin: 0px;
   display: grid;
-  grid-template-rows: 50px auto;
+  grid-template-columns: 1fr var(--headerSize) var(--headerSize);
+  grid-template-rows: var(--headerSize);
+  padding: var(--headerPadding);
+  align-items: center;
 }
 
 .albumListGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 300px);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-auto-flow: row dense;
-  gap: 5px;
-  width: auto;
+  margin: 0 auto;
+  padding: var(--albumGridPadding);
+  gap: 7px;
+  height: auto;
+  position: relative;
+  background-color: var(--secondary);
+}
+
+h1 {
+  font-size: var(--headerFontSize);
+  padding-left: 5px;
+}
+
+#title {
+  display: flex;
+}
+
+body {
+  background-color: var(--secondary);
+  margin: 0;
+}
+
+.appBody {
+  overflow: auto;
+}
+
+img {
+  width: 100%;
+  height: 100%;
+}
+
+.menuIcon {
+  cursor: pointer;
+}
+
+.menuIconSelected {
+  background-color: #121212;
+  /* TODO */
+}
+
+#userPopover {
+  background-color: #191919;
+  color: #F5F5F5;
 }
 
 .albumListItem {
-  background-color: #4D5057;
-  border-radius: 5px;
+  background-color: var(--tertiary);
+  border-radius: 2px;
   padding: 5px;
-  min-width: 0;
+  min-width: 300px;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 300px auto;
+  grid-template-columns: 100px auto;
+  /* box-shadow: -3px 3px 3px var(--secondaryshadow); */
 }
 
 .albumListItem:hover {
-  background-color: #4E6E5D;
+  background-color: var(--tertiaryhover);
+}
+
+#playlistSelect {
+  padding-top: 7px;
+  justify-content: center;
+  text-align: center;
+  height: minmax(20px,1fr);
+  position: relative;
+}
+
+#playlistDropdown {
+  background-color: var(--tertiary);
+  padding: 8px 16px;
+  border: 0px solid transparent;
+  border-color: transparent;
+  user-select: none;
+  color: var(--text);
+}
+
+#playlistDropdown > option {
+  background-color: var(--tertiaryhover);
+  color: var(--text);
+  padding: 8px 16px;
+  border: 0px solid transparent;
+  border-color: transparent;
+  user-select: none;
 }
 
 .albumInfo {
-  padding: 0px 5px 5px 5px;
-  font-family: Arial, Helvetica, sans-serif;
+  padding: 10px;
   display: block;
   overflow: hidden;
   white-space: nowrap;
+  position: relative
 }
 
 .albumTitle {
   font-weight: bolder;
-  font-size: 25px;
+  font-size: 18px;
   display: block;
-  color: #EFEFEF;
+  color: var(--text);
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -59,14 +176,22 @@ body {
 
 .artistList {
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
+  padding-top: 5px;
   display: block;
-  color: #EFEFEF;
+  color: var(--text);
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .albumType {
-  color: #CFCFCF;
-} 
+  color: var(--text);
+  padding-top: 5px;
+}
+
+.albumCheckbox {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
