@@ -8,7 +8,7 @@
 
 @media only screen and (max-width:600px) {
   :root {
-    --headerPadding: 5px calc(3% + 5px) 5px calc(3% + 5px);
+    --headerPadding: 3px 5px 3px 5px;
     --headerSize: 40px;
     --headerFontSize: 20px;
     --albumGridPadding: 5px;
@@ -17,7 +17,7 @@
 
 @media only screen and (min-width:600px) {
   :root {
-    --headerPadding: 10px calc(15% + 5px) 10px calc(15% + 5px);
+    --headerPadding: 3px calc(15% + 5px) 3px calc(15% + 5px);
     --headerSize: 50px;
     --headerFontSize: 32px;
     --albumGridPadding: 10px 15% 10px 15%;
@@ -110,11 +110,6 @@ img {
   /* TODO */
 }
 
-#userPopover {
-  background-color: #191919;
-  color: #F5F5F5;
-}
-
 .albumListItem {
   background-color: var(--tertiary);
   border-radius: 2px;
@@ -194,4 +189,41 @@ img {
   position: absolute;
   right: 0;
   bottom: 0;
+}
+
+#exportDiv {
+  display: grid;
+  grid-template-rows: auto 50px;
+  background-color: var(--secondary);
+}
+
+#exportList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  margin: 3px;
+  position: relative;
+  background-color: var(--secondaryshadow);
+  color: var(--text);
+  overflow: scroll;
+}
+
+.exportListItem {
+  background-color: var(--tertiary);
+  width: 100%;
+  display: grid;
+  grid-template-columns: 50px auto;
+  padding: 2px;
+  gap: 2px;
+}
+
+#exportButtonsDiv {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+}
+
+.exportAlbumInfo {
+  padding-left: 10px;
+  align-self: center;
 }

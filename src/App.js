@@ -8,6 +8,9 @@ import Badge from '@mui/material/Badge';
 import Checkbox from '@mui/material/Checkbox';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 function AppBody (props) {
   if (!props.username) return (<AuthRequest />);
@@ -41,8 +44,8 @@ function Header (props) {
       <div id="title">
         <h1>Albumize</h1> 
       </div>
-      <div class="menuIcon">
-        <Badge badgeContent={props.numAlbums} onClick={props.createNewPlaylist} sx={{width: "100%", height: "100%",
+      <div class="menuIcon" onClick={props.openExportList}>
+        <Badge badgeContent={props.numAlbums} sx={{width: "100%", height: "100%",
           "& .MuiBadge-badge": {
             color: "black",
             backgroundColor: "#A6D257",
@@ -53,6 +56,30 @@ function Header (props) {
           <ViewListIcon sx={{width:"100%", height:"100%", backgroundColor: '#121212'}} />
         </Badge>
       </div>
+      <Modal 
+        open={props.exportListOpen}
+        onClose={props.closeExportList}
+      >
+        <Box sx={{position: 'absolute', top: '50%', left: '50%', minWidth: '25%', minHeight: '25%', transform: 'translate(-50%, -50%)'}}>
+          <div id="exportDiv">
+            <div id="exportList">
+              {props.albumsToSend.map(album => (
+                <div class="exportListItem" key={album.id}>
+                  <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+                  <div class="exportAlbumInfo">{album.name}</div>
+                </div>
+              ))}
+            </div>
+            <div id="exportButtonsDiv">
+              <div class="exportButton">
+                <Button variant="contained" onClick={props.createNewPlaylist}>
+                  Create Playlist
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
       <div class="menuIcon" onClick={props.setUserAnchor} >
         <PersonIcon sx={{width: "100%", height: "100%"}}  />
       </div>
@@ -71,7 +98,7 @@ function Header (props) {
         }}
       >
         <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
-          You are logged in with Spotify username: {props.username}
+          Logged in as: {props.username}
         </Typography>
       </Popover>
     </div>
@@ -115,7 +142,7 @@ function AlbumList (props) {
                   <Checkbox sx={{color: '#3D473D', '&.Mui-checked': {
                     color: "#A6D257"
                   }}} 
-                  onChange={(e) => props.update(album.id,e.target.checked) } />
+                  onChange={(e) => props.update(album,e.target.checked) } />
                 </div>
               </div>
           </div>
@@ -131,6 +158,7 @@ function App() {
   const [albumsToSend, setAlbumsToSend] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userAnchor, setUserAnchor] = useState(null);
+  const [exportListOpen, setExportListOpen] = useState(false);
 
   // useEffect(() => {
   //   DataInterface.getReleaseRadarAlbums()
@@ -215,11 +243,35 @@ function App() {
     setUserAnchor(null);
   }
   
+  const openExportList = () => {
+    setExportListOpen(true);
+  }
+
+  const closeExportList = () => {
+    setExportListOpen(false);
+  }
+  
   return(
     <>
-      <Header numAlbums={albumsToSend.length} createNewPlaylist={newPlaylist} userAnchor={userAnchor} setUserAnchor={userIconClick} closeUserPopover={closeUserPopover} username={username} />
-       {/*username={username} selectPlaylist={getAlbums} submit={newPlaylist} */} 
-      <AppBody data={data} update={updateAlbumsToSend} username={username} selectPlaylist={getAlbums} loading={loading} />
+      <Header 
+        numAlbums={albumsToSend.length} 
+        createNewPlaylist={newPlaylist} 
+        userAnchor={userAnchor} 
+        setUserAnchor={userIconClick} 
+        closeUserPopover={closeUserPopover} 
+        username={username}
+        exportListOpen={exportListOpen} 
+        closeExportList={closeExportList}
+        openExportList={openExportList}
+        albumsToSend={albumsToSend}
+      />
+      <AppBody 
+        data={data} 
+        update={updateAlbumsToSend} 
+        username={username} 
+        selectPlaylist={getAlbums} 
+        loading={loading} 
+      />
     </>
   )
 }
