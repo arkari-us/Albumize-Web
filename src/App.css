@@ -12,6 +12,7 @@
     --headerSize: 40px;
     --headerFontSize: 20px;
     --albumGridPadding: 5px;
+    --exportDivPercent: 75%;
   }
 }
 
@@ -21,6 +22,7 @@
     --headerSize: 50px;
     --headerFontSize: 32px;
     --albumGridPadding: 10px 15% 10px 15%;
+    --exportDivPercent: 50%;
   }
 }
 
@@ -125,6 +127,10 @@ img {
   background-color: var(--tertiaryhover);
 }
 
+.albumListItemSelected {
+  box-shadow: inset 0px 0px 2px var(--secondaryshadow);
+}
+
 #playlistSelect {
   padding-top: 7px;
   justify-content: center;
@@ -193,19 +199,23 @@ img {
 
 #exportDiv {
   display: grid;
-  grid-template-rows: auto 50px;
+  grid-template-rows: 1fr auto;
   background-color: var(--secondary);
+  grid-template-areas: 'list' 'footer';
+  height: 70%;
+  overflow: hidden;
 }
 
 #exportList {
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
   gap: 3px;
   margin: 3px;
-  position: relative;
   background-color: var(--secondaryshadow);
   color: var(--text);
-  overflow: scroll;
+  grid-area: list;
+  overflow: auto;
 }
 
 .exportListItem {
@@ -220,7 +230,8 @@ img {
 #exportButtonsDiv {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-
+  margin: auto;
+  grid-area: footer;
 }
 
 .exportAlbumInfo {

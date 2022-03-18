@@ -8,7 +8,7 @@ import Badge from '@mui/material/Badge';
 import Checkbox from '@mui/material/Checkbox';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
+import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
@@ -56,11 +56,13 @@ function Header (props) {
           <ViewListIcon sx={{width:"100%", height:"100%", backgroundColor: '#121212'}} />
         </Badge>
       </div>
-      <Modal 
+      <Dialog 
         open={props.exportListOpen}
         onClose={props.closeExportList}
+        sx={{
+          maxHeight: {xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%'}
+        }}
       >
-        <Box sx={{position: 'absolute', top: '50%', left: '50%', minWidth: '25%', minHeight: '25%', transform: 'translate(-50%, -50%)'}}>
           <div id="exportDiv">
             <div id="exportList">
               {props.albumsToSend.map(album => (
@@ -78,8 +80,7 @@ function Header (props) {
               </div>
             </div>
           </div>
-        </Box>
-      </Modal>
+      </Dialog>
       <div class="menuIcon" onClick={props.setUserAnchor} >
         <PersonIcon sx={{width: "100%", height: "100%"}}  />
       </div>
@@ -122,7 +123,7 @@ function AlbumList (props) {
     <div class='albumListGrid'>
       {props.albums.map(album => (
         <label>
-          <div class='albumListItem'>
+          <div class="albumListItem">
               <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
               <div class="albumInfo">
                 <div class="albumTitle">
@@ -225,7 +226,12 @@ function App() {
       alert('Please select at least one album to export.');
     }
     else{
-      DataInterface.createNewPlaylist(albumsToSend)
+      var albums = [];
+      albumsToSend.forEach(album => {
+        albums.push(album.id);
+      });
+
+      DataInterface.createNewPlaylist(albums)
         .then((id) => {
           alert(`Playlist created with id ${id}`);
         })
