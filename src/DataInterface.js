@@ -50,6 +50,31 @@ const DataInterface = {
       .catch((err) => {
         return err.response.data;
       })
+  },
+
+  async pageLoadCheckUser() {
+    return axios.get(
+      'https://arkari.us/albumize/api/user'
+    )
+      .then((res) => {
+        return res.data.data;
+      })
+      .catch((err) => {
+        return false;
+      });
+  },
+
+  async logout() {
+    return axios.delete(
+      'https://arkari.us/albumize/api/user',
+      {headers: headers}
+    )
+      .then((res) => {
+        return true;
+      })
+      .catch((err) => {
+        return false;
+      });
   }
 }
 

@@ -9,17 +9,18 @@ import Checkbox from '@mui/material/Checkbox';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import { SettingsBackupRestoreOutlined } from '@mui/icons-material';
 
 function AppBody (props) {
-  if (!props.username) return (<AuthRequest />);
+  if (props.loading) return (<Loading />);
+  else if (!props.username) return (<AuthRequest />);
   else if (props.data.err) return (<>{JSON.stringify(props.data.err)}</>);
   else {
     return (
       <div class='appBody'>
         <PlaylistSelect selectPlaylist={props.selectPlaylist} />
-        {props.loading ? <Loading /> : (props.data.albums ? <AlbumList albums={props.data.albums} update={props.update} /> : '')}
+        {props.loadingAlbums ? <Loading /> : (props.data.albums ? <AlbumList albums={props.data.albums} update={props.update} /> : '')}
       </div>
     )
   }
@@ -63,23 +64,7 @@ function Header (props) {
           maxHeight: {xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%'}
         }}
       >
-          <div id="exportDiv">
-            <div id="exportList">
-              {props.albumsToSend.map(album => (
-                <div class="exportListItem" key={album.id}>
-                  <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
-                  <div class="exportAlbumInfo">{album.name}</div>
-                </div>
-              ))}
-            </div>
-            <div id="exportButtonsDiv">
-              <div class="exportButton">
-                <Button variant="contained" onClick={props.createNewPlaylist}>
-                  Create Playlist
-                </Button>
-              </div>
-            </div>
-          </div>
+        <ExportDiv albumsToSend={props.albumsToSend} createNewPlaylist={props.createNewPlaylist} />
       </Dialog>
       <div class="menuIcon" onClick={props.setUserAnchor} >
         <PersonIcon sx={{width: "100%", height: "100%"}}  />
@@ -99,9 +84,30 @@ function Header (props) {
         }}
       >
         <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
-          Logged in as: {props.username}
+          Logged in as: {props.username}<br />
+          <Button onClick={DataInterface.logout}>Log out</Button>
         </Typography>
       </Popover>
+    </div>
+  )
+}
+
+function ExportDiv (props) {
+  return (
+    <div id="exportDiv">
+      <div id="exportList">
+        {props.albumsToSend.map(album => (
+          <div class="exportListItem" key={album.id}>
+            <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+            <div class="exportAlbumInfo">{album.name}</div>
+          </div>
+        ))}
+      </div>
+      <div id="exportButton">
+        <Button variant="contained" onClick={props.createNewPlaylist}>
+          Export to Spotify
+        </Button>
+      </div>
     </div>
   )
 }
@@ -123,7 +129,7 @@ function AlbumList (props) {
     <div class='albumListGrid'>
       {props.albums.map(album => (
         <label>
-          <div class="albumListItem">
+          <div class={'albumListItem ' + (album.selected ? 'albumListItemSelected' : '')}>
               <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
               <div class="albumInfo">
                 <div class="albumTitle">
@@ -155,28 +161,35 @@ function AlbumList (props) {
 
 function App() {
   const [data, setData] = useState({});
-  const [username] = useState(Cookies.get('username'));
+  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
   const [albumsToSend, setAlbumsToSend] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingAlbums, setLoadingAlbums] = useState(false);
   const [userAnchor, setUserAnchor] = useState(null);
   const [exportListOpen, setExportListOpen] = useState(false);
 
-  // useEffect(() => {
-  //   DataInterface.getReleaseRadarAlbums()
-  //     .then((res) => {
-  //       setData(res);
-  //     })
-  //     .catch((res) => {
-  //       setData({ err: res });
-  //     });
-  // }, []);
+  useEffect(() => {
+    setLoading(true);
+    DataInterface.pageLoadCheckUser()
+      .then((res) => {
+        setUsername(res.username);
+        setUserId(res.userid);
+      })
+      .catch((res) => {
+        setData({ err: res });
+      })
+      .finally((res) => {
+        setLoading(false);
+      });
+  }, []);
 
   const getAlbums = (playlistName) => {
-    setLoading(true);
+    setLoadingAlbums(true);
     switch(playlistName) {
       case '':
         setData({});
-        setLoading(false);
+        setLoadingAlbums(false);
         break;
       case 'releaseradar':
         DataInterface.getReleaseRadarAlbums()
@@ -187,7 +200,7 @@ function App() {
             setData({ err: res });
           })
           .finally((res) => {
-            setLoading(false);
+            setLoadingAlbums(false);
           });
           break;
       case 'discoverweekly':
@@ -270,6 +283,7 @@ function App() {
         closeExportList={closeExportList}
         openExportList={openExportList}
         albumsToSend={albumsToSend}
+        userId={userId}
       />
       <AppBody 
         data={data} 
@@ -277,6 +291,7 @@ function App() {
         username={username} 
         selectPlaylist={getAlbums} 
         loading={loading} 
+        loadingAlbums={loadingAlbums}
       />
     </>
   )

@@ -12,7 +12,8 @@
     --headerSize: 40px;
     --headerFontSize: 20px;
     --albumGridPadding: 5px;
-    --exportDivPercent: 75%;
+    --exportDivHeight: 75%;
+    --exportDivWidth: 95%;
   }
 }
 
@@ -22,7 +23,8 @@
     --headerSize: 50px;
     --headerFontSize: 32px;
     --albumGridPadding: 10px 15% 10px 15%;
-    --exportDivPercent: 50%;
+    --exportDivHeight: 50%;
+    --exportDivWidth: 500px;
   }
 }
 
@@ -120,7 +122,6 @@ img {
   min-height: 0;
   display: grid;
   grid-template-columns: 100px auto;
-  /* box-shadow: -3px 3px 3px var(--secondaryshadow); */
 }
 
 .albumListItem:hover {
@@ -201,9 +202,10 @@ img {
   display: grid;
   grid-template-rows: 1fr auto;
   background-color: var(--secondary);
-  grid-template-areas: 'list' 'footer';
-  height: 70%;
+  max-height: calc(var(--exportDivHeight));
+  width: calc(var(--exportDivWidth));
   overflow: hidden;
+  padding: 2px;
 }
 
 #exportList {
@@ -212,9 +214,10 @@ img {
   grid-template-rows: 1fr;
   gap: 3px;
   margin: 3px;
+  min-width: 300px;
+  padding-bottom: 5px;
   background-color: var(--secondaryshadow);
   color: var(--text);
-  grid-area: list;
   overflow: auto;
 }
 
@@ -223,18 +226,15 @@ img {
   width: 100%;
   display: grid;
   grid-template-columns: 50px auto;
-  padding: 2px;
   gap: 2px;
-}
-
-#exportButtonsDiv {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: auto;
-  grid-area: footer;
 }
 
 .exportAlbumInfo {
   padding-left: 10px;
   align-self: center;
+}
+
+#exportButton {
+  align-self: center;
+  justify-self: center;
 }
