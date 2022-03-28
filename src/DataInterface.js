@@ -70,7 +70,7 @@ const DataInterface = {
       {headers: headers}
     )
       .then((res) => {
-        return true;
+        location.reload();
       })
       .catch((err) => {
         return false;
