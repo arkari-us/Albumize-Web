@@ -176,8 +176,8 @@ function App() {
         setUsername(res.username);
         setUserId(res.userid);
       })
-      .catch((res) => {
-        setData({ err: res });
+      .catch((err) => {
+        console.log(err);
       })
       .finally((res) => {
         setLoading(false);
@@ -186,38 +186,32 @@ function App() {
 
   const getAlbums = (playlistName) => {
     setLoadingAlbums(true);
+    var promise;
     switch(playlistName) {
       case '':
         setData({});
         setLoadingAlbums(false);
         break;
       case 'releaseradar':
-        DataInterface.getReleaseRadarAlbums()
-          .then((res) => {
-            setData(res);
-          })
-          .catch((res) => {
-            setData({ err: res });
-          })
-          .finally((res) => {
-            setLoadingAlbums(false);
-          });
-          break;
+        promise = DataInterface.getReleaseRadarAlbums();
+        break;
       case 'discoverweekly':
-        DataInterface.getDiscoverWeeklyAlbums()
-          .then((res) => {
-            setData(res);
-          })
-          .catch((res) => {
-            setData({ err: res });
-          })
-          .finally((res) => {
-            setLoading(false);
-          });
-          break;
+        promise = DataInterface.getDiscoverWeeklyAlbums();
+        break;
       default:
-        setLoading(false);
+        setLoadingAlbums(false);
     }
+
+    Promise.resolve(promise)
+      .then((res) => {
+        setData(res);
+      })
+      .catch((res) => {
+        setData({ err: res });
+      })
+      .finally(() => {
+        setLoadingAlbums(false);
+      });
   }
 
   const updateAlbumsToSend = (id, isChecked) => {

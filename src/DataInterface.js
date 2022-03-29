@@ -7,37 +7,28 @@ const headers = {
 
 const DataInterface = {
   async getReleaseRadarAlbums() {
-    const uri = 'https://arkari.us/albumize/api/albums/releaseradar';
-
-    return axios.get(
-      uri, 
-      {}
-    )
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        console.log('Error getting albums: ' + err.response.data.err);
-        return err.response.data;
-      });
+    return this.getAlbums('https://arkari.us/albumize/api/albums/releaseradar');
   },
 
   async getDiscoverWeeklyAlbums() {
-    const uri = 'https://arkari.us/albumize/api/albums/discoverweekly';
-
+    return this.getAlbums('https://arkari.us/albumize/api/albums/discoverweekly');
+  },
+  
+  async getAlbums(uri) {
     return axios.get(
       uri, 
       {}
     )
       .then((res) => {
+        console.log(res.data);
         return res.data;
       })
       .catch((err) => {
-        console.log('Error getting albums: ' + err.response.data.err);
+        console.log('Error getting albums: ' + err);
         return err.response.data;
       });
   },
-  
+
   async createNewPlaylist(albums) {
     return axios.post(
       `https://arkari.us/albumize/api/playlists/newplaylist`,
