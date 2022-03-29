@@ -34,7 +34,9 @@
   --secondaryshadow: #191919;
   --tertiary: #3D473D;
   --tertiaryhover: #4D574D;
+  --tertiarySelected: #4d874D;
   --text: #F5F5F5;
+  --softText: #B5B5B5;
   --accent: #A6D257;
 }
 
@@ -192,10 +194,13 @@ img {
   padding-top: 5px;
 }
 
-.albumCheckbox {
+.alreadyExported {
   position: absolute;
   right: 0;
   bottom: 0;
+  text-align: right;
+  font-size: smaller;
+  color: var(--softText);
 }
 
 #exportDiv {

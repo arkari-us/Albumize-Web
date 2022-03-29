@@ -21,7 +21,6 @@ const DataInterface = {
       {}
     )
       .then((res) => {
-        console.log(res.data);
         return res.data;
       })
       .catch((err) => {
@@ -57,7 +56,7 @@ const DataInterface = {
   },
 
   async logout() {
-    return axios.delete(
+    axios.delete(
       'https://arkari.us/albumize/api/user',
       {headers: headers}
     )
@@ -65,8 +64,23 @@ const DataInterface = {
         location.reload();
       })
       .catch((err) => {
-        return false;
+        alert(err.data);
       });
+  },
+
+  async purge() {
+    if (confirm('This will delete all of your user data from Albumze, including data on previously exported albums. Is this okay?')){
+      axios.delete(
+        'https://arkari.us/albumize/api/user/auth',
+        {headers: headers}
+      )
+        .then((res) => {
+          location.reload();
+        })
+        .catch((err) => {
+          alert(err.data);
+        })
+    }
   }
 }
 
