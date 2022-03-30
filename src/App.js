@@ -1,7 +1,6 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
 import DataInterface from './DataInterface';
-import Cookies from 'js-cookie';
 import PersonIcon from '@mui/icons-material/Person';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import Badge from '@mui/material/Badge';
@@ -10,17 +9,30 @@ import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
-import { SettingsBackupRestoreOutlined } from '@mui/icons-material';
 
-function AppBody (props) {
+function AppBody(props) {
   if (props.loading) return (<Loading />);
   else if (!props.username) return (<AuthRequest />);
   else if (props.data.err) return (<>{JSON.stringify(props.data.err)}</>);
   else {
     return (
       <div class='appBody'>
-        <PlaylistSelect selectPlaylist={props.selectPlaylist} />
-        {props.loadingAlbums ? <Loading /> : (props.data.albums ? <AlbumList albums={props.data.albums} albumsToSend={props.albumsToSend} update={props.update} /> : '')}
+        <PlaylistSelect
+          selectPlaylist={props.selectPlaylist}
+          updateSelectAll={props.updateSelectAll}
+          selectedAll={props.selectedAll}
+          loadedAlbums={props.loadedAlbums}
+        />
+        {props.loadingAlbums ?
+          <Loading /> :
+          (props.data.albums ?
+            <AlbumList
+              albums={props.data.albums}
+              albumsToSend={props.albumsToSend}
+              update={props.update}
+            /> :
+            '')
+        }
       </div>
     )
   }
@@ -36,17 +48,18 @@ const AuthRequest = () => (
   </a>
 )
 
-function Header (props) {
+function Header(props) {
   const userPopoverOpen = Boolean(props.userAnchor);
   const userPopoverId = userPopoverOpen ? 'userPopover' : undefined;
 
   return (
     <div id="header">
       <div id="title">
-        <h1>Albumize</h1> 
+        <h1>Albumize</h1>
       </div>
       <div class="menuIcon" onClick={props.openExportList}>
-        <Badge badgeContent={props.numAlbums} sx={{width: "100%", height: "100%",
+        <Badge badgeContent={props.numAlbums} sx={{
+          width: "100%", height: "100%",
           "& .MuiBadge-badge": {
             color: "black",
             backgroundColor: "#A6D257",
@@ -54,22 +67,22 @@ function Header (props) {
             top: 8
           }
         }}>
-          <ViewListIcon sx={{width:"100%", height:"100%", backgroundColor: '#121212'}} />
+          <ViewListIcon sx={{ width: "100%", height: "100%", backgroundColor: '#121212' }} />
         </Badge>
       </div>
-      <Dialog 
+      <Dialog
         open={props.exportListOpen}
         onClose={props.closeExportList}
         sx={{
-          maxHeight: {xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%'}
+          maxHeight: { xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%' }
         }}
       >
         <ExportDiv albumsToSend={props.albumsToSend} createNewPlaylist={props.createNewPlaylist} />
       </Dialog>
       <div class="menuIcon" onClick={props.setUserAnchor} >
-        <PersonIcon sx={{width: "100%", height: "100%"}}  />
+        <PersonIcon sx={{ width: "100%", height: "100%" }} />
       </div>
-      <Popover 
+      <Popover
         id={userPopoverId}
         open={userPopoverOpen}
         anchorEl={props.userAnchor}
@@ -93,7 +106,7 @@ function Header (props) {
   )
 }
 
-function ExportDiv (props) {
+function ExportDiv(props) {
   return (
     <div id="exportDiv">
       <div id="exportList">
@@ -113,7 +126,7 @@ function ExportDiv (props) {
   )
 }
 
-function PlaylistSelect (props) {
+function PlaylistSelect(props) {
   return (
     <div id="playlistSelect">
       <select id="playlistDropdown" onChange={(e) => props.selectPlaylist(e.target.value)}>
@@ -121,37 +134,64 @@ function PlaylistSelect (props) {
         <option value="releaseradar">Release Radar</option>
         <option value="discoverweekly">Discover Weekly</option>
       </select>
+      &nbsp;
+      {props.loadedAlbums ?
+        <label for="selectedAll">
+          <Button
+            variant={props.selectedAll ? 'contained' : 'outlined'}
+            color="success"
+            onClick={() => props.updateSelectAll(!props.selectedAll)}
+            sx={{
+              padding: '2px',
+              border: '2px solid'
+            }}
+          >
+            <Checkbox
+              id="selectedAll"
+              sx={{ padding: 0 }}
+              checked={props.selectedAll}
+              onChange={(e) => props.updateSelectAll(e.target.checked)}
+            />&nbsp;Select all/none
+          </Button>
+        </label>
+        : ''
+      }
     </div>
   )
 }
 
-function AlbumList (props) {
-  return(
+function AlbumList(props) {
+  return (
     <div class='albumListGrid'>
-      {props.albums.map((album) => (
-        <label>
-          <div 
+      {props.albums.map((album, index) => (
+        <label for={'album' + index}>
+          <div
             class="albumListItem"
-            style={ props.albumsToSend.includes(album.id) ? { backgroundColor: '#4d874D', boxShadow: 'inset 0px 0px 2px #191919' } : {} }
+            style={props.albumsToSend.includes(album) ? { backgroundColor: '#2d772D' } : {}}
           >
-              <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
-              <div class="albumInfo">
-                <div class="albumTitle">
-                  {album.name} 
-                </div>
-                <div class="artistList">{album.artists.map((artist, index) => (
-                  <>
-                    {(index ? ', ' : '')}
-                    {artist.name}
-                  </>
-                ))}
-                </div>
-                <div class="albumType">
-                  {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
-                </div>
-                {album.alreadyExported && <div class="alreadyExported">You've previously exported this album</div>}
-                <input type="checkbox" hidden onChange={(e) => props.update(album,e.target.checked) } />
+            <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+            <div class="albumInfo">
+              <div class="albumTitle">
+                {album.name}
               </div>
+              <div class="artistList">{album.artists.map((artist, index) => (
+                <>
+                  {(index ? ', ' : '')}
+                  {artist.name}
+                </>
+              ))}
+              </div>
+              <div class="albumType">
+                {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
+              </div>
+              {album.alreadyExported && <div class="alreadyExported">You've previously exported this album</div>}
+              <input
+                type="checkbox"
+                id={'album' + index}
+                checked={props.albumsToSend.includes(album)}
+                hidden
+                onChange={(e) => props.update(album, e.target.checked)} />
+            </div>
           </div>
         </label>
       ))}
@@ -168,6 +208,8 @@ function App() {
   const [loadingAlbums, setLoadingAlbums] = useState(false);
   const [userAnchor, setUserAnchor] = useState(null);
   const [exportListOpen, setExportListOpen] = useState(false);
+  const [selectedAll, setSelectedAll] = useState(false);
+  const [loadedAlbums, setLoadedAlbums] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -184,10 +226,23 @@ function App() {
       });
   }, []);
 
+  useEffect(() => {
+    if (data && data.albums) {
+      if (albumsToSend.length == data.albums.length) {
+        setSelectedAll(true);
+      }
+      else {
+        setSelectedAll(false);
+      }
+    }
+  }, [data.albums, albumsToSend]);
+
   const getAlbums = (playlistName) => {
+    setAlbumsToSend([]);
     setLoadingAlbums(true);
+    setLoadedAlbums(false);
     var promise;
-    switch(playlistName) {
+    switch (playlistName) {
       case '':
         setData({});
         setLoadingAlbums(false);
@@ -204,6 +259,7 @@ function App() {
 
     Promise.resolve(promise)
       .then((res) => {
+        setLoadedAlbums(true);
         setData(res);
       })
       .catch((res) => {
@@ -214,9 +270,10 @@ function App() {
       });
   }
 
-  const updateAlbumsToSend = (id, isChecked) => {
+  const updateAlbumsToSend = (id, checked) => {
+    console.log(checked);
     var albums = albumsToSend;
-    if (isChecked) {
+    if (checked) {
       if (!albums.includes(id)) {
         albums = [...albums, id];
       }
@@ -232,7 +289,7 @@ function App() {
     if (albumsToSend.length == 0) {
       alert('Please select at least one album to export.');
     }
-    else{
+    else {
       var albums = [];
       albumsToSend.forEach(album => {
         albums.push(album.id);
@@ -248,6 +305,11 @@ function App() {
     }
   }
 
+  const updateSelectAll = (selected) => {
+    setSelectedAll(selected);
+    setAlbumsToSend(selected ? data.albums : []);
+  }
+
   const userIconClick = (e) => {
     setUserAnchor(e.currentTarget);
   }
@@ -255,7 +317,7 @@ function App() {
   const closeUserPopover = () => {
     setUserAnchor(null);
   }
-  
+
   const openExportList = () => {
     setExportListOpen(true);
   }
@@ -263,30 +325,33 @@ function App() {
   const closeExportList = () => {
     setExportListOpen(false);
   }
-  
-  return(
+
+  return (
     <>
-      <Header 
-        numAlbums={albumsToSend.length} 
-        createNewPlaylist={newPlaylist} 
-        userAnchor={userAnchor} 
-        setUserAnchor={userIconClick} 
-        closeUserPopover={closeUserPopover} 
+      <Header
+        numAlbums={albumsToSend.length}
+        createNewPlaylist={newPlaylist}
+        userAnchor={userAnchor}
+        setUserAnchor={userIconClick}
+        closeUserPopover={closeUserPopover}
         username={username}
-        exportListOpen={exportListOpen} 
+        exportListOpen={exportListOpen}
         closeExportList={closeExportList}
         openExportList={openExportList}
         albumsToSend={albumsToSend}
         userId={userId}
       />
-      <AppBody 
-        data={data} 
-        update={updateAlbumsToSend} 
-        username={username} 
-        selectPlaylist={getAlbums} 
+      <AppBody
+        data={data}
+        update={updateAlbumsToSend}
+        username={username}
+        selectPlaylist={getAlbums}
         albumsToSend={albumsToSend}
-        loading={loading} 
+        loading={loading}
         loadingAlbums={loadingAlbums}
+        updateSelectAll={updateSelectAll}
+        selectedAll={selectedAll}
+        loadedAlbums={loadedAlbums}
       />
     </>
   )
