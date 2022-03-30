@@ -11,9 +11,11 @@ import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
 
 function AppBody(props) {
+  const [hideAlreadyExported, setHideAlreadyExported] = useState(false);
+
   if (props.loading) return (<Loading />);
   else if (!props.username) return (<AuthRequest />);
-  else if (props.data.err) return (<>{JSON.stringify(props.data.err)}</>);
+  else if (props.err) return (<>{JSON.stringify(props.err)}</>);
   else {
     return (
       <div class='appBody'>
@@ -22,14 +24,17 @@ function AppBody(props) {
           updateSelectAll={props.updateSelectAll}
           selectedAll={props.selectedAll}
           loadedAlbums={props.loadedAlbums}
+          hideAlreadyExported={hideAlreadyExported}
+          setHideAlreadyExported={setHideAlreadyExported}
         />
         {props.loadingAlbums ?
           <Loading /> :
-          (props.data.albums ?
+          (props.albums ?
             <AlbumList
-              albums={props.data.albums}
+              albums={props.albums}
               albumsToSend={props.albumsToSend}
               update={props.update}
+              hideAlreadyExported={hideAlreadyExported}
             /> :
             '')
         }
@@ -127,6 +132,7 @@ function ExportDiv(props) {
 }
 
 function PlaylistSelect(props) {
+
   return (
     <div id="playlistSelect">
       <select id="playlistDropdown" onChange={(e) => props.selectPlaylist(e.target.value)}>
@@ -136,24 +142,47 @@ function PlaylistSelect(props) {
       </select>
       &nbsp;
       {props.loadedAlbums ?
+      <>
         <label for="selectedAll">
           <Button
             variant={props.selectedAll ? 'contained' : 'outlined'}
+            style={{border: '2px solid #2E7D32' }}
             color="success"
             onClick={() => props.updateSelectAll(!props.selectedAll)}
             sx={{
-              padding: '2px',
-              border: '2px solid'
+              padding: '2px 5px'
             }}
           >
             <Checkbox
               id="selectedAll"
-              sx={{ padding: 0 }}
+              sx={{ padding: 0, margin: 0 }}
+              style={ props.selectedAll ? {color: 'white'} : {color: '#2E7D32'}}
               checked={props.selectedAll}
               onChange={(e) => props.updateSelectAll(e.target.checked)}
-            />&nbsp;Select all/none
+            />&nbsp;SELECT ALL/NONE
           </Button>
         </label>
+        &nbsp;
+        <label for="hideAlreadyExported">
+          <Button
+            variant={props.hideAlreadyExported ? 'contained' : 'outlined'}
+            style={{border: '2px solid #2E7D32' }}
+            color="success"
+            onClick={() => props.setHideAlreadyExported(!props.hideAlreadyExported)}
+            sx={{
+              padding: '2px 5px'
+            }}
+          >
+            <Checkbox
+              id="hideAlreadyExported"
+              sx={{ padding: 0, margin: 0 }}
+              style={ props.hideAlreadyExported ? {color: 'white'} : {color: '#2E7D32'}}
+              checked={props.hideAlreadyExported}
+              onChange={(e) => props.setHideAlreadyExported(e.target.checked)}
+            />&nbsp;Hide previously exported
+          </Button>
+        </label>
+      </>
         : ''
       }
     </div>
@@ -161,9 +190,11 @@ function PlaylistSelect(props) {
 }
 
 function AlbumList(props) {
+  const albums = props.hideAlreadyExported ? props.albums.filter(album => !album.alreadyExported) : props.albums;
+
   return (
     <div class='albumListGrid'>
-      {props.albums.map((album, index) => (
+      {albums.map((album, index) => (
         <label for={'album' + index}>
           <div
             class="albumListItem"
@@ -184,7 +215,7 @@ function AlbumList(props) {
               <div class="albumType">
                 {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
               </div>
-              {album.alreadyExported && <div class="alreadyExported">You've previously exported this album</div>}
+              {album.alreadyExported && <div class="alreadyExported">Previously exported</div>}
               <input
                 type="checkbox"
                 id={'album' + index}
@@ -200,7 +231,8 @@ function AlbumList(props) {
 }
 
 function App() {
-  const [data, setData] = useState({});
+  const [albums, setAlbums] = useState([]);
+  const [err, setErr] = useState('');
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState('');
   const [albumsToSend, setAlbumsToSend] = useState([]);
@@ -227,15 +259,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (data && data.albums) {
-      if (albumsToSend.length == data.albums.length) {
-        setSelectedAll(true);
-      }
-      else {
-        setSelectedAll(false);
-      }
-    }
-  }, [data.albums, albumsToSend]);
+    if (albums) setSelectedAll(albumsToSend.length == albums.length);
+  }, [albums, albumsToSend]);
 
   const getAlbums = (playlistName) => {
     setAlbumsToSend([]);
@@ -244,7 +269,7 @@ function App() {
     var promise;
     switch (playlistName) {
       case '':
-        setData({});
+        setAlbums([]);
         setLoadingAlbums(false);
         break;
       case 'releaseradar':
@@ -260,10 +285,11 @@ function App() {
     Promise.resolve(promise)
       .then((res) => {
         setLoadedAlbums(true);
-        setData(res);
+        setAlbums(res.albums);
+        setErr(res.err);
       })
       .catch((res) => {
-        setData({ err: res });
+        setErr(res);
       })
       .finally(() => {
         setLoadingAlbums(false);
@@ -307,7 +333,7 @@ function App() {
 
   const updateSelectAll = (selected) => {
     setSelectedAll(selected);
-    setAlbumsToSend(selected ? data.albums : []);
+    setAlbumsToSend(selected ? albums : []);
   }
 
   const userIconClick = (e) => {
@@ -342,7 +368,8 @@ function App() {
         userId={userId}
       />
       <AppBody
-        data={data}
+        albums={albums}
+        err={err}
         update={updateAlbumsToSend}
         username={username}
         selectPlaylist={getAlbums}
