@@ -20,7 +20,7 @@ function AppBody (props) {
     return (
       <div class='appBody'>
         <PlaylistSelect selectPlaylist={props.selectPlaylist} />
-        {props.loadingAlbums ? <Loading /> : (props.data.albums ? <AlbumList albums={props.data.albums} update={props.update} /> : '')}
+        {props.loadingAlbums ? <Loading /> : (props.data.albums ? <AlbumList albums={props.data.albums} albumsToSend={props.albumsToSend} update={props.update} /> : '')}
       </div>
     )
   }
@@ -85,7 +85,8 @@ function Header (props) {
       >
         <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
           Logged in as: {props.username}<br />
-          <Button onClick={DataInterface.logout}>Log out</Button>
+          <Button onClick={DataInterface.logout}>Log out</Button><br />
+          <Button onClick={DataInterface.purge}>Remove account</Button>
         </Typography>
       </Popover>
     </div>
@@ -127,9 +128,12 @@ function PlaylistSelect (props) {
 function AlbumList (props) {
   return(
     <div class='albumListGrid'>
-      {props.albums.map(album => (
+      {props.albums.map((album) => (
         <label>
-          <div class={'albumListItem ' + (album.selected ? 'albumListItemSelected' : '')}>
+          <div 
+            class="albumListItem"
+            style={ props.albumsToSend.includes(album.id) ? { backgroundColor: '#4d874D', boxShadow: 'inset 0px 0px 2px #191919' } : {} }
+          >
               <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
               <div class="albumInfo">
                 <div class="albumTitle">
@@ -145,12 +149,8 @@ function AlbumList (props) {
                 <div class="albumType">
                   {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
                 </div>
-                <div class="albumCheckbox">
-                  <Checkbox sx={{color: '#3D473D', '&.Mui-checked': {
-                    color: "#A6D257"
-                  }}} 
-                  onChange={(e) => props.update(album,e.target.checked) } />
-                </div>
+                {album.alreadyExported && <div class="alreadyExported">You've previously exported this album</div>}
+                <input type="checkbox" hidden onChange={(e) => props.update(album,e.target.checked) } />
               </div>
           </div>
         </label>
@@ -284,6 +284,7 @@ function App() {
         update={updateAlbumsToSend} 
         username={username} 
         selectPlaylist={getAlbums} 
+        albumsToSend={albumsToSend}
         loading={loading} 
         loadingAlbums={loadingAlbums}
       />
