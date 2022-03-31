@@ -13,6 +13,23 @@ import Button from '@mui/material/Button';
 function AppBody(props) {
   const [hideAlreadyExported, setHideAlreadyExported] = useState(false);
 
+  const albums = hideAlreadyExported ? props.albums.filter(album => {
+    return !album.alreadyExported;
+  }) : props.albums;
+
+  const updateSelectAll = (checked) => {
+    props.setAlbumsToSend(checked ? albums : []);
+  }
+
+  const updateHideAlreadyExported = (checked) => {
+    setHideAlreadyExported(checked);
+    if (checked) {
+      props.setAlbumsToSend(props.albumsToSend.filter(album => {
+        return !album.alreadyExported;
+      }));
+    }
+  }
+
   if (props.loading) return (<Loading />);
   else if (!props.username) return (<AuthRequest />);
   else if (props.err) return (<>{JSON.stringify(props.err)}</>);
@@ -21,17 +38,17 @@ function AppBody(props) {
       <div class='appBody'>
         <PlaylistSelect
           selectPlaylist={props.selectPlaylist}
-          updateSelectAll={props.updateSelectAll}
-          selectedAll={props.selectedAll}
+          updateSelectAll={updateSelectAll}
+          selectedAll={albums.length == props.albumsToSend.length}
           loadedAlbums={props.loadedAlbums}
           hideAlreadyExported={hideAlreadyExported}
-          setHideAlreadyExported={setHideAlreadyExported}
+          updateHideAlreadyExported={updateHideAlreadyExported}
         />
         {props.loadingAlbums ?
           <Loading /> :
           (props.albums ?
             <AlbumList
-              albums={props.albums}
+              albums={albums}
               albumsToSend={props.albumsToSend}
               update={props.update}
               hideAlreadyExported={hideAlreadyExported}
@@ -102,9 +119,16 @@ function Header(props) {
         }}
       >
         <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
-          Logged in as: {props.username}<br />
-          <Button onClick={DataInterface.logout}>Log out</Button><br />
-          <Button onClick={DataInterface.purge}>Remove account</Button>
+          {
+            props.username ?
+              <>
+                Logged in as: {props.username}<br />
+                <Button onClick={DataInterface.logout}>Log out</Button><br />
+                <Button onClick={DataInterface.purge}>Remove account</Button>
+              </>
+              :
+              <>You are not logged in</>
+          }
         </Typography>
       </Popover>
     </div>
@@ -136,53 +160,51 @@ function PlaylistSelect(props) {
   return (
     <div id="playlistSelect">
       <select id="playlistDropdown" onChange={(e) => props.selectPlaylist(e.target.value)}>
-        <option hidden disabled selected value="">--Select a playlist--</option>
-        <option value="releaseradar">Release Radar</option>
-        <option value="discoverweekly">Discover Weekly</option>
+        <option hidden disabled selected={props.currentPlaylist !== 'releaseradar' && props.currentPlaylist !== 'discoverweekly'} value="">--Select a playlist--</option>
+        <option value="releaseradar" selected={props.currentPlaylist == 'releaseradar'}>Release Radar</option>
+        <option value="discoverweekly" selected={props.currentPlaylist == 'discoverweekly'}>Discover Weekly</option>
       </select>
       &nbsp;
       {props.loadedAlbums ?
-      <>
-        <label for="selectedAll">
-          <Button
-            variant={props.selectedAll ? 'contained' : 'outlined'}
-            style={{border: '2px solid #2E7D32' }}
-            color="success"
-            onClick={() => props.updateSelectAll(!props.selectedAll)}
-            sx={{
-              padding: '2px 5px'
-            }}
-          >
-            <Checkbox
-              id="selectedAll"
-              sx={{ padding: 0, margin: 0 }}
-              style={ props.selectedAll ? {color: 'white'} : {color: '#2E7D32'}}
-              checked={props.selectedAll}
-              onChange={(e) => props.updateSelectAll(e.target.checked)}
-            />&nbsp;SELECT ALL/NONE
-          </Button>
-        </label>
-        &nbsp;
-        <label for="hideAlreadyExported">
-          <Button
-            variant={props.hideAlreadyExported ? 'contained' : 'outlined'}
-            style={{border: '2px solid #2E7D32' }}
-            color="success"
-            onClick={() => props.setHideAlreadyExported(!props.hideAlreadyExported)}
-            sx={{
-              padding: '2px 5px'
-            }}
-          >
-            <Checkbox
-              id="hideAlreadyExported"
-              sx={{ padding: 0, margin: 0 }}
-              style={ props.hideAlreadyExported ? {color: 'white'} : {color: '#2E7D32'}}
-              checked={props.hideAlreadyExported}
-              onChange={(e) => props.setHideAlreadyExported(e.target.checked)}
-            />&nbsp;Hide previously exported
-          </Button>
-        </label>
-      </>
+        <>
+          <label for="selectedAll">
+            <Button
+              variant={props.selectedAll ? 'contained' : 'outlined'}
+              style={{ border: '2px solid #2E7D32' }}
+              color="success"
+              onClick={() => props.updateSelectAll(!props.selectedAll)}
+              sx={{
+                padding: '2px 5px'
+              }}
+            >
+              <Checkbox
+                id="selectedAll"
+                sx={{ padding: 0, margin: 0 }}
+                style={props.selectedAll ? { color: 'white' } : { color: '#2E7D32' }}
+                checked={props.selectedAll}
+              />&nbsp;SELECT ALL/NONE
+            </Button>
+          </label>
+          &nbsp;
+          <label for="hideAlreadyExported">
+            <Button
+              variant={props.hideAlreadyExported ? 'contained' : 'outlined'}
+              style={{ border: '2px solid #2E7D32' }}
+              color="success"
+              onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+              sx={{
+                padding: '2px 5px'
+              }}
+            >
+              <Checkbox
+                id="hideAlreadyExported"
+                sx={{ padding: 0, margin: 0 }}
+                style={props.hideAlreadyExported ? { color: 'white' } : { color: '#2E7D32' }}
+                checked={ props.hideAlreadyExported }
+              />&nbsp;Hide previously exported
+            </Button>
+          </label>
+        </>
         : ''
       }
     </div>
@@ -240,7 +262,6 @@ function App() {
   const [loadingAlbums, setLoadingAlbums] = useState(false);
   const [userAnchor, setUserAnchor] = useState(null);
   const [exportListOpen, setExportListOpen] = useState(false);
-  const [selectedAll, setSelectedAll] = useState(false);
   const [loadedAlbums, setLoadedAlbums] = useState(false);
 
   useEffect(() => {
@@ -257,10 +278,6 @@ function App() {
         setLoading(false);
       });
   }, []);
-
-  useEffect(() => {
-    if (albums) setSelectedAll(albumsToSend.length == albums.length);
-  }, [albums, albumsToSend]);
 
   const getAlbums = (playlistName) => {
     setAlbumsToSend([]);
@@ -331,11 +348,6 @@ function App() {
     }
   }
 
-  const updateSelectAll = (selected) => {
-    setSelectedAll(selected);
-    setAlbumsToSend(selected ? albums : []);
-  }
-
   const userIconClick = (e) => {
     setUserAnchor(e.currentTarget);
   }
@@ -371,13 +383,12 @@ function App() {
         albums={albums}
         err={err}
         update={updateAlbumsToSend}
+        setAlbumsToSend={setAlbumsToSend}
         username={username}
         selectPlaylist={getAlbums}
         albumsToSend={albumsToSend}
         loading={loading}
         loadingAlbums={loadingAlbums}
-        updateSelectAll={updateSelectAll}
-        selectedAll={selectedAll}
         loadedAlbums={loadedAlbums}
       />
     </>
