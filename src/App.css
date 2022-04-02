@@ -74,7 +74,7 @@ a {
 
 .albumListGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-auto-flow: row dense;
   margin: 0 auto;
   padding: var(--albumGridPadding);
@@ -82,6 +82,15 @@ a {
   height: auto;
   position: relative;
   background-color: var(--secondary);
+}
+
+.loading {
+  position: absolute;
+  text-align: center;
+  top:50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
 }
 
 h1 {
@@ -134,11 +143,10 @@ img {
   box-shadow: inset 0px 0px 2px var(--secondaryshadow);
 }
 
-#playlistSelect {
+#listOptions {
   padding-top: 7px;
   justify-content: center;
   text-align: center;
-  height: minmax(20px,1fr);
   position: relative;
 }
 

@@ -9,16 +9,26 @@ import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
+import { CircularProgress, ToggleButtonGroup } from '@mui/material';
+import Image from 'material-ui-image';
+import { ToggleButton } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
 
 function AppBody(props) {
   const [hideAlreadyExported, setHideAlreadyExported] = useState(false);
+  const [currentPlaylist, setCurrentPlaylist] = useState('');
 
   const albums = hideAlreadyExported ? props.albums.filter(album => {
     return !album.alreadyExported;
   }) : props.albums;
 
-  const updateSelectAll = (checked) => {
-    props.setAlbumsToSend(checked ? albums : []);
+  const updateCurrentPlaylist = (value) => {
+    setCurrentPlaylist(value);
+    props.selectPlaylist(value);
+  }
+
+  const selectAll = () => {
+    props.setAlbumsToSend(albums);
   }
 
   const updateHideAlreadyExported = (checked) => {
@@ -28,6 +38,9 @@ function AppBody(props) {
         return !album.alreadyExported;
       }));
     }
+    if (!checked) {
+
+    }
   }
 
   if (props.loading) return (<Loading />);
@@ -36,13 +49,13 @@ function AppBody(props) {
   else {
     return (
       <div class='appBody'>
-        <PlaylistSelect
-          selectPlaylist={props.selectPlaylist}
-          updateSelectAll={updateSelectAll}
-          selectedAll={albums.length == props.albumsToSend.length}
+        <ListOptions
+          selectAll={selectAll}
           loadedAlbums={props.loadedAlbums}
           hideAlreadyExported={hideAlreadyExported}
           updateHideAlreadyExported={updateHideAlreadyExported}
+          currentPlaylist={currentPlaylist}
+          selectPlaylist={updateCurrentPlaylist}
         />
         {props.loadingAlbums ?
           <Loading /> :
@@ -61,7 +74,7 @@ function AppBody(props) {
 }
 
 function Loading() {
-  return (<div>loading...</div>)
+  return (<div class="loading"><CircularProgress size="200px" style={{ color: '#A6D257' }} /></div>)
 }
 
 const AuthRequest = () => (
@@ -155,58 +168,65 @@ function ExportDiv(props) {
   )
 }
 
-function PlaylistSelect(props) {
+function ListOptions(props) {
 
   return (
-    <div id="playlistSelect">
-      <select id="playlistDropdown" onChange={(e) => props.selectPlaylist(e.target.value)}>
-        <option hidden disabled selected={props.currentPlaylist !== 'releaseradar' && props.currentPlaylist !== 'discoverweekly'} value="">--Select a playlist--</option>
-        <option value="releaseradar" selected={props.currentPlaylist == 'releaseradar'}>Release Radar</option>
-        <option value="discoverweekly" selected={props.currentPlaylist == 'discoverweekly'}>Discover Weekly</option>
-      </select>
+    <div id="listOptions">
+      <ToggleButtonGroup
+        value={props.currentPlaylist}
+        exclusive
+        style={{color: 'white'}}
+        onChange={(e) => props.selectPlaylist(e.target.value)}
+        color="success"
+      >
+        <ToggleButton 
+          value="releaseradar" 
+          style={{
+            color: 'white', 
+            backgroundColor: props.currentPlaylist == 'releaseradar' ? '#4d874D' : '#3D473D'
+          }} 
+          selected={props.currentPlaylist == 'releaseradar'}
+        >
+          Release Radar
+        </ToggleButton>
+        <ToggleButton 
+          value="discoverweekly" 
+          style={{
+            color:'white',
+            backgroundColor: props.currentPlaylist == 'discoverweekly' ? '#4d874D' : '#3D473D'
+          }} 
+          selected={props.currentPlaylist == 'discoverweekly'}
+        >
+          Discover Weekly
+        </ToggleButton>
+      </ToggleButtonGroup>
       &nbsp;
-      {props.loadedAlbums ?
-        <>
-          <label for="selectedAll">
-            <Button
-              variant={props.selectedAll ? 'contained' : 'outlined'}
-              style={{ border: '2px solid #2E7D32' }}
-              color="success"
-              onClick={() => props.updateSelectAll(!props.selectedAll)}
-              sx={{
-                padding: '2px 5px'
-              }}
-            >
-              <Checkbox
-                id="selectedAll"
-                sx={{ padding: 0, margin: 0 }}
-                style={props.selectedAll ? { color: 'white' } : { color: '#2E7D32' }}
-                checked={props.selectedAll}
-              />&nbsp;SELECT ALL/NONE
-            </Button>
-          </label>
-          &nbsp;
-          <label for="hideAlreadyExported">
-            <Button
-              variant={props.hideAlreadyExported ? 'contained' : 'outlined'}
-              style={{ border: '2px solid #2E7D32' }}
-              color="success"
-              onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
-              sx={{
-                padding: '2px 5px'
-              }}
-            >
-              <Checkbox
-                id="hideAlreadyExported"
-                sx={{ padding: 0, margin: 0 }}
-                style={props.hideAlreadyExported ? { color: 'white' } : { color: '#2E7D32' }}
-                checked={ props.hideAlreadyExported }
-              />&nbsp;Hide previously exported
-            </Button>
-          </label>
-        </>
-        : ''
-      }
+      <ToggleButtonGroup 
+        onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+      >
+        <ToggleButton
+          style={{
+            color:'white',
+            backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
+          }} 
+          selected={props.hideAlreadyExported}
+        >
+          Hide Previously Exported
+        </ToggleButton>
+      </ToggleButtonGroup>
+      &nbsp;
+      <Button 
+        size="large" 
+        variant="contained" 
+        onClick={props.selectAll}
+        style={{
+          boxShadow: 'none',
+          color: 'black',
+          backgroundColor: '#B5B5B5'
+        }}
+      >
+        Select All
+      </Button>
     </div>
   )
 }
@@ -222,7 +242,7 @@ function AlbumList(props) {
             class="albumListItem"
             style={props.albumsToSend.includes(album) ? { backgroundColor: '#2d772D' } : {}}
           >
-            <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+            <div><Image src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" animationDuration={300} disableSpinner={true} color={'#3D473D'} /></div>
             <div class="albumInfo">
               <div class="albumTitle">
                 {album.name}
@@ -314,7 +334,6 @@ function App() {
   }
 
   const updateAlbumsToSend = (id, checked) => {
-    console.log(checked);
     var albums = albumsToSend;
     if (checked) {
       if (!albums.includes(id)) {
