@@ -144,10 +144,16 @@ img {
 }
 
 #listOptions {
-  padding-top: 7px;
-  justify-content: center;
-  text-align: center;
+  margin: var(--headerPadding);
   position: relative;
+  text-align: center;
+}
+
+#clearButton {
+  position: absolute;
+  right: 5px;
+  bottom: 50%;
+  transform: translate(0, 50%);
 }
 
 #playlistDropdown {

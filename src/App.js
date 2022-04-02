@@ -13,6 +13,7 @@ import { CircularProgress, ToggleButtonGroup } from '@mui/material';
 import Image from 'material-ui-image';
 import { ToggleButton } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 
 function AppBody(props) {
   const [hideAlreadyExported, setHideAlreadyExported] = useState(false);
@@ -38,9 +39,9 @@ function AppBody(props) {
         return !album.alreadyExported;
       }));
     }
-    if (!checked) {
-
-    }
+  }
+  const clearExportList = () => {
+    props.setAlbumsToSend([]);
   }
 
   if (props.loading) return (<Loading />);
@@ -56,6 +57,8 @@ function AppBody(props) {
           updateHideAlreadyExported={updateHideAlreadyExported}
           currentPlaylist={currentPlaylist}
           selectPlaylist={updateCurrentPlaylist}
+          areAlbumsSelected={props.albumsToSend.length > 0}
+          clearExportList={clearExportList}
         />
         {props.loadingAlbums ?
           <Loading /> :
@@ -169,64 +172,87 @@ function ExportDiv(props) {
 }
 
 function ListOptions(props) {
+  const mobile = useMediaQuery('(max-width:600px)');
 
   return (
     <div id="listOptions">
-      <ToggleButtonGroup
-        value={props.currentPlaylist}
-        exclusive
-        style={{color: 'white'}}
-        onChange={(e) => props.selectPlaylist(e.target.value)}
-        color="success"
-      >
-        <ToggleButton 
-          value="releaseradar" 
-          style={{
-            color: 'white', 
-            backgroundColor: props.currentPlaylist == 'releaseradar' ? '#4d874D' : '#3D473D'
-          }} 
-          selected={props.currentPlaylist == 'releaseradar'}
+        <ToggleButtonGroup
+          value={props.currentPlaylist}
+          exclusive
+          style={{color: 'white'}}
+          onChange={(e) => props.selectPlaylist(e.target.value)}
+          color="success"
         >
-          Release Radar
-        </ToggleButton>
-        <ToggleButton 
-          value="discoverweekly" 
-          style={{
-            color:'white',
-            backgroundColor: props.currentPlaylist == 'discoverweekly' ? '#4d874D' : '#3D473D'
-          }} 
-          selected={props.currentPlaylist == 'discoverweekly'}
+          <ToggleButton 
+            value="releaseradar" 
+            style={{
+              color: 'white', 
+              backgroundColor: props.currentPlaylist == 'releaseradar' ? '#4d874D' : '#3D473D'
+            }} 
+            selected={props.currentPlaylist == 'releaseradar'}
+          >
+            Release Radar
+          </ToggleButton>
+          <ToggleButton 
+            value="discoverweekly" 
+            style={{
+              color:'white',
+              backgroundColor: props.currentPlaylist == 'discoverweekly' ? '#4d874D' : '#3D473D'
+            }} 
+            selected={props.currentPlaylist == 'discoverweekly'}
+          >
+            Discover Weekly
+          </ToggleButton>
+        </ToggleButtonGroup>
+      { mobile ? '' :
+      <>
+        &nbsp;
+        <ToggleButtonGroup 
+          onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
         >
-          Discover Weekly
-        </ToggleButton>
-      </ToggleButtonGroup>
-      &nbsp;
-      <ToggleButtonGroup 
-        onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
-      >
-        <ToggleButton
+          <ToggleButton
+            style={{
+              color:'white',
+              backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
+            }} 
+            selected={props.hideAlreadyExported}
+          >
+            Hide Previously Exported
+          </ToggleButton>
+        </ToggleButtonGroup>
+        &nbsp;
+        <Button 
+          size="large" 
+          variant="contained" 
+          onClick={props.selectAll}
           style={{
-            color:'white',
-            backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
-          }} 
-          selected={props.hideAlreadyExported}
+            boxShadow: 'none',
+            color: 'black',
+            backgroundColor: '#B5B5B5'
+          }}
         >
-          Hide Previously Exported
-        </ToggleButton>
-      </ToggleButtonGroup>
-      &nbsp;
-      <Button 
-        size="large" 
-        variant="contained" 
-        onClick={props.selectAll}
-        style={{
-          boxShadow: 'none',
-          color: 'black',
-          backgroundColor: '#B5B5B5'
-        }}
-      >
-        Select All
-      </Button>
+          Select All
+        </Button>
+      </>
+      }
+      <div id="clearButton">
+        {
+          props.areAlbumsSelected ?
+          <Button 
+            variant="contained" 
+            style={mobile ? {
+              backgroundColor: '#234523',
+              height: '40px',
+              width: '40px'
+            } : {
+              backgroundColor: '#234523'
+            }}
+            onClick={() => props.clearExportList()}>
+            <ClearIcon /> { mobile ? '' : 'Clear Selection' }
+          </Button>
+          : ''
+        }
+      </div>
     </div>
   )
 }
