@@ -15,7 +15,6 @@ import { ToggleButton } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { SelectAll } from '@mui/icons-material';
 
 function AppBody(props) {
   const [hideAlreadyExported, setHideAlreadyExported] = useState(false);
@@ -46,38 +45,37 @@ function AppBody(props) {
     props.setAlbumsToSend([]);
   }
 
-  if (props.loading || (props.loadingAlbums && !props.loadedAlbums)) return (<Loading />);
-  else if (!props.username) return (<AuthRequest />);
-  else if (props.err) return (<>{JSON.stringify(props.err)}</>);
-  else if (!props.loadedAlbums) return (
-    <InitialPlaylistSelect updateCurrentPlaylist={updateCurrentPlaylist} />
+  return (
+    <div>
+      {props.loading || (props.loadingAlbums && !props.loadedAlbums) ? <Loading /> :
+      !props.username ? <AuthRequest /> :
+      props.err ? <>{JSON.stringify(props.err)}</> :
+      !props.loadedAlbums ? <InitialPlaylistSelect updateCurrentPlaylist={updateCurrentPlaylist} /> :
+        <div class='appBody'>
+          <ListOptions
+            selectAll={selectAll}
+            loadedAlbums={props.loadedAlbums}
+            hideAlreadyExported={hideAlreadyExported}
+            updateHideAlreadyExported={updateHideAlreadyExported}
+            currentPlaylist={currentPlaylist}
+            selectPlaylist={updateCurrentPlaylist}
+            areAlbumsSelected={props.albumsToSend.length > 0}
+            clearExportList={clearExportList}
+          />
+          {props.albums ?
+              <AlbumList
+                albums={albums}
+                albumsToSend={props.albumsToSend}
+                update={props.update}
+                hideAlreadyExported={hideAlreadyExported}
+                loadingAlbums={props.loadingAlbums}
+              /> :
+              ''
+          }
+        </div>
+      }
+    </div>
   )
-  else {
-    return (
-      <div class='appBody'>
-        <ListOptions
-          selectAll={selectAll}
-          loadedAlbums={props.loadedAlbums}
-          hideAlreadyExported={hideAlreadyExported}
-          updateHideAlreadyExported={updateHideAlreadyExported}
-          currentPlaylist={currentPlaylist}
-          selectPlaylist={updateCurrentPlaylist}
-          areAlbumsSelected={props.albumsToSend.length > 0}
-          clearExportList={clearExportList}
-        />
-        {props.albums ?
-            <AlbumList
-              albums={albums}
-              albumsToSend={props.albumsToSend}
-              update={props.update}
-              hideAlreadyExported={hideAlreadyExported}
-              loadingAlbums={props.loadingAlbums}
-            /> :
-            ''
-        }
-      </div>
-    )
-  }
 }
 
 function Loading() {
@@ -194,6 +192,14 @@ function Header(props) {
           }
         </Typography>
       </Popover>
+    </div>
+  )
+}
+
+function Footer() {
+  return(
+    <div id="footer">
+      <img id="imageContain" src="img/Spotify_Logo_RGB_Green.png" />
     </div>
   )
 }
@@ -566,6 +572,7 @@ function App() {
         loadingAlbums={loadingAlbums}
         loadedAlbums={loadedAlbums}
       />
+      <Footer />
     </>
   )
 }

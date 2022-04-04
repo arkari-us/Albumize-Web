@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm dist/bundle.js",
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --public-url ./",
+    "build": "rm -rf dist/* && parcel build src/index.html --public-url ./",
     "postbuild": "tar -cvzf "
   },
   "dependencies": {

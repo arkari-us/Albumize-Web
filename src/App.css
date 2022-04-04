@@ -63,7 +63,7 @@ a {
 
 #app {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   height:100%;
   font-family: Arial, Helvetica, sans-serif;
   color: var(--text);
@@ -78,6 +78,17 @@ a {
   grid-template-rows: var(--headerSize);
   padding: var(--headerPadding);
   align-items: center;
+}
+
+#footer {
+  height: 65px;
+  background-color: var(--primary);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#imageContain {
+  object-fit: contain;
 }
 
 .albumListGrid {
