@@ -46,7 +46,7 @@ function AppBody(props) {
   }
 
   return (
-    <div>
+    <div id="mainContent">
       {props.loading || (props.loadingAlbums && !props.loadedAlbums) ? <Loading /> :
       !props.username ? <AuthRequest /> :
       props.err ? <>{JSON.stringify(props.err)}</> :
