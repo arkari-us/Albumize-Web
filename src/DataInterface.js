@@ -48,6 +48,7 @@ const DataInterface = {
       'https://arkari.us/albumize/api/user'
     )
       .then((res) => {
+        console.log(res.data.data);
         return res.data.data;
       })
       .catch((err) => {
