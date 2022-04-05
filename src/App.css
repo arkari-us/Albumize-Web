@@ -6,6 +6,16 @@
 
 }
 
+@media only screen and (max-width: 400px) {
+  #toggleButtons {
+    max-width: 200px;
+  }
+
+  .exportListItem {
+    width: auto !important;
+  }
+}
+
 @media only screen and (max-width:600px) {
   :root {
     --headerPadding: 3px 5px 3px 5px;
@@ -13,7 +23,6 @@
     --headerFontSize: 20px;
     --albumGridPadding: 5px;
     --exportDivHeight: 75%;
-    --exportDivWidth: 95%;
   }
 }
 
@@ -24,7 +33,6 @@
     --headerFontSize: 32px;
     --albumGridPadding: 10px 15% 10px 15%;
     --exportDivHeight: 50%;
-    --exportDivWidth: 500px;
   }
 }
 
@@ -163,7 +171,7 @@ img {
   background-color: var(--tertiary);
   border-radius: 2px;
   padding: 5px;
-  min-width: 300px;
+  min-width: ;
   min-height: 0;
   display: grid;
   grid-template-columns: 100px auto;
@@ -261,7 +269,6 @@ img {
   grid-template-rows: 1fr auto;
   background-color: var(--secondary);
   max-height: calc(var(--exportDivHeight));
-  width: calc(var(--exportDivWidth));
   overflow: hidden;
   padding: 2px;
 }
