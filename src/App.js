@@ -145,7 +145,6 @@ function Header(props) {
       <Dialog
         open={props.exportListOpen}
         onClose={props.closeExportList}
-        classes={{paper: {minWidth: '200px'}}}
         sx={{
           maxHeight: { xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%' }
         }}
@@ -207,7 +206,7 @@ function Footer() {
 function ExportDiv(props) {
   return (
     <div id="exportDiv">
-      <div id="exportList" style={props.albumsToSend.length ? {} : {overflow: 'hidden'}}>
+      <div id="exportList">
         {
           props.albumsToSend.length ? props.albumsToSend.map(album => (
             <div class="exportListItem" key={album.id}>
@@ -231,17 +230,15 @@ function ExportDiv(props) {
 }
 
 function ListOptions(props) {
-  const [settingsAnchor, setSettingsAnchor] = useState(null)
+  const [dialogOpen, setDialogOpen] = useState(false); 
   const smallScreen = useMediaQuery('(max-width:1300px)');
-  const settingsMenuOpen = Boolean(settingsAnchor);
-  const settingsMenuId = settingsAnchor ? 'settingsMenu' : undefined;
 
-  const openSettingsMenu = (e) => {
-    setSettingsAnchor(e.currentTarget);
+  const openSettingsDialog = () => {
+    setDialogOpen(true);
   }
 
-  const settingsMenuClose = () => {
-    setSettingsAnchor(null);
+  const settingsDialogClose = () => {
+    setDialogOpen(false);
   }
 
   return (
@@ -255,56 +252,46 @@ function ListOptions(props) {
               variant="contained" 
               style={{
                 backgroundColor: '#3D473D',
-                maxWidth: '35px',
-                maxHeight: '35px',
-                minWidth: '35px',
-                minHeight: '35px'
+                maxWidth: '40px',
+                maxHeight: '40px',
+                minWidth: '40px',
+                minHeight: '40px'
               }}
-              onClick={openSettingsMenu}
-            >
+              onClick={() => openSettingsDialog()}>
               <SettingsIcon /> 
-            </Button>
-            <Popover
-              id={settingsMenuId}
-              open={settingsMenuOpen}
-              anchorEl={settingsAnchor}
-              onClose={settingsMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left'
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-            >
-              <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
-              <List>
-                <ListItem 
-                  button 
-                  style={{
-                    backgroundColor: props.hideAlreadyExported ? '#4d874D' : ''
-                  }}
-                  onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
-                >
-                  Hide Already Exported
-                </ListItem>
-                <ListItem button onClick={() => props.selectAll()}>
-                  Select All
-                </ListItem>
-              </List>
-              </Typography>
-            </Popover>
+            </Button> 
           </div> 
+            <Dialog 
+              open={dialogOpen} 
+              onClose={settingsDialogClose}
+            >
+              <div id="settingsDialog" style={{backgroundColor: '#292929', color: '#F5F5F5'}}>
+                <DialogTitle>Settings</DialogTitle>
+                <List>
+                  <ListItem 
+                    button 
+                    style={{
+                      backgroundColor: props.hideAlreadyExported ? '#4d874D' : ''
+                    }}
+                    onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+                  >
+                    Hide Already Exported
+                  </ListItem>
+                  <ListItem button onClick={() => props.selectAll()}>
+                    Select All
+                  </ListItem>
+                </List>
+              </div>
+            </Dialog>
         </>
         : '' 
         }
       </div>
-      <div id="toggleButtons">
+      <div>
         <ToggleButtonGroup
           value={props.currentPlaylist}
           exclusive
-          style={{color: 'white', lineHeight: 1}}
+          style={{color: 'white'}}
           onChange={(e) => props.selectPlaylist(e.target.value)}
           color="success"
         >
@@ -312,7 +299,6 @@ function ListOptions(props) {
             value="releaseradar" 
             style={{
               color: 'white', 
-              lineHeight: 'inherit',
               backgroundColor: props.currentPlaylist == 'releaseradar' ? '#4d874D' : '#3D473D'
             }} 
             selected={props.currentPlaylist == 'releaseradar'}
@@ -323,7 +309,6 @@ function ListOptions(props) {
             value="discoverweekly" 
             style={{
               color:'white',
-              lineHeight: 'inherit',
               backgroundColor: props.currentPlaylist == 'discoverweekly' ? '#4d874D' : '#3D473D'
             }} 
             selected={props.currentPlaylist == 'discoverweekly'}
@@ -335,13 +320,11 @@ function ListOptions(props) {
       <>
         &nbsp;
         <ToggleButtonGroup 
-          style={{lineHeight: 1}}
           onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
         >
           <ToggleButton
             style={{
               color:'white',
-              lineHeight: 'inherit',
               backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
             }} 
             selected={props.hideAlreadyExported}
@@ -355,7 +338,6 @@ function ListOptions(props) {
           variant="contained" 
           onClick={props.selectAll}
           style={{
-            lineHeight: 1.4,
             boxShadow: 'none',
             color: 'black',
             backgroundColor: '#B5B5B5'
