@@ -4,12 +4,11 @@ import DataInterface from './DataInterface';
 import PersonIcon from '@mui/icons-material/Person';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import Badge from '@mui/material/Badge';
-import Checkbox from '@mui/material/Checkbox';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import Button from '@mui/material/Button';
-import { CircularProgress, DialogTitle, List, ListItem, ToggleButtonGroup } from '@mui/material';
+import { CircularProgress, DialogContentText, DialogTitle, DialogContentText, List, ListItem, ToggleButtonGroup, DialogContent } from '@mui/material';
 import Image from 'material-ui-image';
 import { ToggleButton } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
@@ -48,31 +47,31 @@ function AppBody(props) {
   return (
     <div id="mainContent">
       {props.loading || (props.loadingAlbums && !props.loadedAlbums) ? <Loading /> :
-      !props.username ? <AuthRequest /> :
-      props.err ? <>{JSON.stringify(props.err)}</> :
-      !props.loadedAlbums ? <InitialPlaylistSelect updateCurrentPlaylist={updateCurrentPlaylist} /> :
-        <div class='appBody'>
-          <ListOptions
-            selectAll={selectAll}
-            loadedAlbums={props.loadedAlbums}
-            hideAlreadyExported={hideAlreadyExported}
-            updateHideAlreadyExported={updateHideAlreadyExported}
-            currentPlaylist={currentPlaylist}
-            selectPlaylist={updateCurrentPlaylist}
-            areAlbumsSelected={props.albumsToSend.length > 0}
-            clearExportList={clearExportList}
-          />
-          {props.albums ?
-              <AlbumList
-                albums={albums}
-                albumsToSend={props.albumsToSend}
-                update={props.update}
-                hideAlreadyExported={hideAlreadyExported}
-                loadingAlbums={props.loadingAlbums}
-              /> :
-              ''
-          }
-        </div>
+        !props.username ? <AuthRequest /> :
+          props.err ? <>{JSON.stringify(props.err)}</> :
+            !props.loadedAlbums ? <InitialPlaylistSelect updateCurrentPlaylist={updateCurrentPlaylist} /> :
+              <div class='appBody'>
+                <ListOptions
+                  selectAll={selectAll}
+                  loadedAlbums={props.loadedAlbums}
+                  hideAlreadyExported={hideAlreadyExported}
+                  updateHideAlreadyExported={updateHideAlreadyExported}
+                  currentPlaylist={currentPlaylist}
+                  selectPlaylist={updateCurrentPlaylist}
+                  areAlbumsSelected={props.albumsToSend.length > 0}
+                  clearExportList={clearExportList}
+                />
+                {props.albums ?
+                  <AlbumList
+                    albums={albums}
+                    albumsToSend={props.albumsToSend}
+                    update={props.update}
+                    hideAlreadyExported={hideAlreadyExported}
+                    loadingAlbums={props.loadingAlbums}
+                  /> :
+                  ''
+                }
+              </div>
       }
     </div>
   )
@@ -82,37 +81,53 @@ function Loading() {
   return (<div class="loading"><CircularProgress size="200px" style={{ color: '#A6D257' }} /></div>)
 }
 
-const AuthRequest = () => (
-  <div id="authRequest">
-    <h1>Welcome to Albumize!</h1>
-    <p>This application takes the Spotify curated playlists (Release Radar and Discover weekly) and exports a playlist with all tracks from the albums those songs appear on.</p>
-    <p>In order to use this application, you must authorize Spotify to share your data with us.</p>
-    <a href='https://www.arkari.us/albumize/api/user/auth'>
-      <Button
-        size="large" 
-        style={{backgroundColor: '#4D574D', color: '#F5F5F5'}}
-      >
-        Log in with Spotify
-      </Button>
-    </a>
-  </div>
-)
+function AuthRequest() {
+  const [UAopen, setUAopen] = useState(false);
+  const [PPopen, setPPopen] = useState(false);
+
+  const closeUA = () => {
+    setUAopen(false);
+  }
+
+  const closePP = () => {
+    setPPopen(false);
+  }
+
+  return(
+    <div id="authRequest">
+      <h1>Welcome to Albumize!</h1>
+      <p>This application takes the Spotify curated playlists (Release Radar and Discover weekly) and exports a playlist with all tracks from the albums those songs appear on.</p>
+      <p>In order to use this application, you must authorize Spotify to share your data with us, so we can pull your versions of those playlists.</p>
+      <p>By authorizing, you agree to our <span class="authlinks" onClick={() => setUAopen(true)}>User Agreement</span> and <span class="authlinks" onClick={() => setPPopen(true)}>Privacy Policy</span></p>
+      <UserAgreement open={UAopen} onClose={closeUA} />
+      <PrivacyPolicy open={PPopen} onClose={closePP} />
+      <a href='https://www.arkari.us/albumize/api/user/auth'>
+        <Button
+          size="large"
+          style={{ backgroundColor: '#4D574D', color: '#F5F5F5' }}
+        >
+          Log in with Spotify
+        </Button>
+      </a>
+    </div>
+  )
+}
 
 const InitialPlaylistSelect = (props) => (
   <div id="initialPlaylistSelect">
     <h2>Select a playlist to Albumize</h2>
     <br />
-    <Button 
-      size="large" 
-      style={{backgroundColor: '#4D574D', color: '#F5F5F5'}}
+    <Button
+      size="large"
+      style={{ backgroundColor: '#4D574D', color: '#F5F5F5' }}
       onClick={() => props.updateCurrentPlaylist('releaseradar')}
     >
       Release Radar
     </Button>
     &nbsp;
-    <Button 
-      size="large" 
-      style={{backgroundColor: '#4D574D', color: '#F5F5F5'}}
+    <Button
+      size="large"
+      style={{ backgroundColor: '#4D574D', color: '#F5F5F5' }}
       onClick={() => props.updateCurrentPlaylist('discoverweekly')}
     >
       Discover Weekly
@@ -145,7 +160,7 @@ function Header(props) {
       <Dialog
         open={props.exportListOpen}
         onClose={props.closeExportList}
-        classes={{paper: {minWidth: '200px'}}}
+        classes={{ paper: { minWidth: '200px' } }}
         sx={{
           maxHeight: { xs: '95%', sm: '95%', md: '80%', lg: '80%', xl: '80%' }
         }}
@@ -174,16 +189,16 @@ function Header(props) {
             props.username ?
               <>
                 Logged in as: {props.username}<br />
-                <Button onClick={DataInterface.logout}>Log out</Button><br />
-                <Button onClick={DataInterface.purge}>Remove account</Button>
+                <Button style={{ color: '#A6D257' }} onClick={DataInterface.logout}>Log out</Button><br />
+                <Button style={{ color: '#A6D257' }} onClick={DataInterface.purge}>Remove account</Button>
               </>
               :
               <>
                 You are not logged in. <br />
                 <a href='https://www.arkari.us/albumize/api/user/auth'>
                   <Button
-                    size="large" 
-                    style={{backgroundColor: '#4D574D', color: '#F5F5F5'}}
+                    size="small"
+                    style={{ backgroundColor: '#4D574D', color: '#F5F5F5' }}
                   >
                     Log in with Spotify
                   </Button>
@@ -197,7 +212,7 @@ function Header(props) {
 }
 
 function Footer() {
-  return(
+  return (
     <div id="footer">
       <img id="imageContain" src="img/Spotify_Logo_RGB_Green.png" />
     </div>
@@ -207,7 +222,7 @@ function Footer() {
 function ExportDiv(props) {
   return (
     <div id="exportDiv">
-      <div id="exportList" style={props.albumsToSend.length ? {} : {overflow: 'hidden'}}>
+      <div id="exportList" style={props.albumsToSend.length ? {} : { overflow: 'hidden' }}>
         {
           props.albumsToSend.length ? props.albumsToSend.map(album => (
             <div class="exportListItem" key={album.id}>
@@ -215,14 +230,14 @@ function ExportDiv(props) {
               <div class="exportAlbumInfo">{album.name}</div>
             </div>
           ))
-          : 
-          <div id="exportNoAlbums">
-            No albums selected to export. 
-          </div>
+            :
+            <div id="exportNoAlbums">
+              No albums selected to export.
+            </div>
         }
       </div>
       <div id="exportButton">
-        <Button variant="contained" onClick={props.createNewPlaylist}>
+        <Button disabled={!props.albumsToSend.length} variant="contained" style={{ backgroundColor: '#4d874D' }} onClick={props.createNewPlaylist}>
           Export to Spotify
         </Button>
       </div>
@@ -247,144 +262,144 @@ function ListOptions(props) {
   return (
     <div id="listOptions">
       <div class="mobileButtonContainer">
-        { 
-        smallScreen ? 
-        <>
-          <div id="settingsButtonMobile">
-            <Button 
-              variant="contained" 
-              style={{
-                backgroundColor: '#3D473D',
-                maxWidth: '35px',
-                maxHeight: '35px',
-                minWidth: '35px',
-                minHeight: '35px'
-              }}
-              onClick={openSettingsMenu}
-            >
-              <SettingsIcon /> 
-            </Button>
-            <Popover
-              id={settingsMenuId}
-              open={settingsMenuOpen}
-              anchorEl={settingsAnchor}
-              onClose={settingsMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left'
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-            >
-              <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
-              <List>
-                <ListItem 
-                  button 
+        {
+          smallScreen ?
+            <>
+              <div id="settingsButtonMobile">
+                <Button
+                  variant="contained"
                   style={{
-                    backgroundColor: props.hideAlreadyExported ? '#4d874D' : ''
+                    backgroundColor: '#3D473D',
+                    maxWidth: '35px',
+                    maxHeight: '35px',
+                    minWidth: '35px',
+                    minHeight: '35px'
                   }}
-                  onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+                  onClick={openSettingsMenu}
                 >
-                  Hide Already Exported
-                </ListItem>
-                <ListItem button onClick={() => props.selectAll()}>
-                  Select All
-                </ListItem>
-              </List>
-              </Typography>
-            </Popover>
-          </div> 
-        </>
-        : '' 
+                  <SettingsIcon />
+                </Button>
+                <Popover
+                  id={settingsMenuId}
+                  open={settingsMenuOpen}
+                  anchorEl={settingsAnchor}
+                  onClose={settingsMenuClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left'
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left'
+                  }}
+                >
+                  <Typography sx={{ p: 2, backgroundColor: '#191919', color: '#F5F5F5' }}>
+                    <List>
+                      <ListItem
+                        button
+                        style={{
+                          backgroundColor: props.hideAlreadyExported ? '#4d874D' : ''
+                        }}
+                        onClick={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+                      >
+                        Hide Already Exported
+                      </ListItem>
+                      <ListItem button onClick={() => props.selectAll()}>
+                        Select All
+                      </ListItem>
+                    </List>
+                  </Typography>
+                </Popover>
+              </div>
+            </>
+            : ''
         }
       </div>
       <div id="toggleButtons">
         <ToggleButtonGroup
           value={props.currentPlaylist}
           exclusive
-          style={{color: 'white', lineHeight: 1}}
+          style={{ color: 'white', lineHeight: 1 }}
           onChange={(e) => props.selectPlaylist(e.target.value)}
           color="success"
         >
-          <ToggleButton 
-            value="releaseradar" 
+          <ToggleButton
+            value="releaseradar"
             style={{
-              color: 'white', 
+              color: 'white',
               lineHeight: 'inherit',
               backgroundColor: props.currentPlaylist == 'releaseradar' ? '#4d874D' : '#3D473D'
-            }} 
+            }}
             selected={props.currentPlaylist == 'releaseradar'}
           >
             Release Radar
           </ToggleButton>
-          <ToggleButton 
-            value="discoverweekly" 
+          <ToggleButton
+            value="discoverweekly"
             style={{
-              color:'white',
+              color: 'white',
               lineHeight: 'inherit',
               backgroundColor: props.currentPlaylist == 'discoverweekly' ? '#4d874D' : '#3D473D'
-            }} 
+            }}
             selected={props.currentPlaylist == 'discoverweekly'}
           >
             Discover Weekly
           </ToggleButton>
         </ToggleButtonGroup>
-      { smallScreen ? '' :
-      <>
-        &nbsp;
-        <ToggleButtonGroup 
-          style={{lineHeight: 1}}
-          onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
-        >
-          <ToggleButton
-            style={{
-              color:'white',
-              lineHeight: 'inherit',
-              backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
-            }} 
-            selected={props.hideAlreadyExported}
-          >
-            Hide Previously Exported
-          </ToggleButton>
-        </ToggleButtonGroup>
-        &nbsp;
-        <Button 
-          size="large" 
-          variant="contained" 
-          onClick={props.selectAll}
-          style={{
-            lineHeight: 1.4,
-            boxShadow: 'none',
-            color: 'black',
-            backgroundColor: '#B5B5B5'
-          }}
-        >
-          Select All
-        </Button>
-      </>
-      }
+        {smallScreen ? '' :
+          <>
+            &nbsp;
+            <ToggleButtonGroup
+              style={{ lineHeight: 1 }}
+              onChange={() => props.updateHideAlreadyExported(!props.hideAlreadyExported)}
+            >
+              <ToggleButton
+                style={{
+                  color: 'white',
+                  lineHeight: 'inherit',
+                  backgroundColor: props.hideAlreadyExported ? '#4d874D' : '#3D473D'
+                }}
+                selected={props.hideAlreadyExported}
+              >
+                Hide Previously Exported
+              </ToggleButton>
+            </ToggleButtonGroup>
+            &nbsp;
+            <Button
+              size="large"
+              variant="contained"
+              onClick={props.selectAll}
+              style={{
+                lineHeight: 1.4,
+                boxShadow: 'none',
+                color: 'black',
+                backgroundColor: '#B5B5B5'
+              }}
+            >
+              Select All
+            </Button>
+          </>
+        }
       </div>
       <div class="mobileButtonContainer">
         <div id="clearButton">
           {
             props.areAlbumsSelected ?
-            <Button 
-              variant="contained" 
-              style={ smallScreen ? { 
-                backgroundColor: '#234523',
-                maxWidth: '30px',
-                maxHeight: '30px',
-                minWidth: '30px',
-                minHeight: '30px'
-              } : {
-                backgroundColor: '#234523'
-              }}
-              onClick={() => props.clearExportList()}>
-              <ClearIcon /> { smallScreen ? '' : 'Clear' }
-            </Button>
-            : ''
+              <Button
+                variant="contained"
+                style={smallScreen ? {
+                  backgroundColor: '#234523',
+                  maxWidth: '30px',
+                  maxHeight: '30px',
+                  minWidth: '30px',
+                  minHeight: '30px'
+                } : {
+                  backgroundColor: '#234523'
+                }}
+                onClick={() => props.clearExportList()}>
+                <ClearIcon /> {smallScreen ? '' : 'Clear'}
+              </Button>
+              : ''
           }
         </div>
       </div>
@@ -396,43 +411,119 @@ function AlbumList(props) {
   const albums = props.hideAlreadyExported ? props.albums.filter(album => !album.alreadyExported) : props.albums;
 
   if (props.loadingAlbums) return (<Loading />)
-  else 
-  return (
-    <div class='albumListGrid'>
-      {albums.map((album, index) => (
-        <label for={'album' + index}>
-          <div
-            class="albumListItem"
-            style={props.albumsToSend.includes(album) ? { backgroundColor: '#2d772D' } : {}}
-          >
-            <div><Image src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" animationDuration={300} disableSpinner={true} color={'#3D473D'} /></div>
-            <div class="albumInfo">
-              <div class="albumTitle">
-                {album.name}
+  else
+    return (
+      <div class='albumListGrid'>
+        {albums.map((album, index) => (
+          <label for={'album' + index}>
+            <div
+              class="albumListItem"
+              style={props.albumsToSend.includes(album) ? { backgroundColor: '#2d772D' } : {}}
+            >
+              <div><Image src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" animationDuration={300} disableSpinner={true} color={'#3D473D'} /></div>
+              <div class="albumInfo">
+                <div class="albumTitle">
+                  {album.name}
+                </div>
+                <div class="artistList">{album.artists.map((artist, index) => (
+                  <>
+                    {(index ? ', ' : '')}
+                    {artist.name}
+                  </>
+                ))}
+                </div>
+                <div class="albumType">
+                  {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
+                </div>
+                {album.alreadyExported && <div class="alreadyExported">Previously exported</div>}
+                <input
+                  type="checkbox"
+                  id={'album' + index}
+                  checked={props.albumsToSend.includes(album)}
+                  hidden
+                  onChange={(e) => props.update(album, e.target.checked)} />
               </div>
-              <div class="artistList">{album.artists.map((artist, index) => (
-                <>
-                  {(index ? ', ' : '')}
-                  {artist.name}
-                </>
-              ))}
-              </div>
-              <div class="albumType">
-                {album.album_type} -- {album.total_tracks + ' track' + ((album.total_tracks > 1) ? 's' : '')}
-              </div>
-              {album.alreadyExported && <div class="alreadyExported">Previously exported</div>}
-              <input
-                type="checkbox"
-                id={'album' + index}
-                checked={props.albumsToSend.includes(album)}
-                hidden
-                onChange={(e) => props.update(album, e.target.checked)} />
             </div>
-          </div>
-        </label>
-      ))}
-    </div>
-  );
+          </label>
+        ))}
+      </div>
+    );
+}
+
+function UserAgreement(props) {
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <div class="legalDocModalDiv">
+        <DialogTitle>User Agreement</DialogTitle>
+        <DialogContent>
+          <DialogContentText class="uappText">By authorizing with Spotify, you (User) agree to the following User Agreement:</DialogContentText>
+          <DialogContentText class="uappText">
+            <ol class="legalDocLists">
+              <li>Albumize makes no warranties or representations on behalf of Spotify and expressly disclaims all implied warranties with respect to the Spotify Platform, Spotify Service and Spotify Content, including the implied warranties of merchantability, fitness for a particular purpose and non-infringement. </li>
+              <li>User is prohibited from modifying or creating derivative works based on the Spotify Platform, Spotify Service, or Spotify Content.</li>
+              <li>User is prohibited from decompiling, reverse-engineering, disassembling, and otherwise reducing the Spotify Platform, Spotify Service, and Spotify Content to source code or other human-perceivable form, to the full extent allowed by law.</li>
+              <li>Albumize is solely responsible for any issues resulting from use of this site. Spotify, and any other applicable third parties, will not be held responsible for any issues resulting from use of this site.</li>
+              <li>Spotify is a third party beneficiary of this User Agreement, as well as the Privacy Policy included on this site, and is entitled to directly enforce both.</li>
+            </ol>
+          </DialogContentText>
+        </DialogContent>
+      </div>
+    </Dialog>
+  )
+}
+
+function PrivacyPolicy(props) {
+  return (
+    <Dialog open={props.open} onClose={props.onClose}>
+      <div class="legalDocModalDiv">
+        <DialogTitle>Privacy Policy</DialogTitle>
+        <DialogContent>
+          <DialogContentText class="uappText">By authorizing with Spotify, you agree to the following Privacy Policy:</DialogContentText>
+          <h3>Personal Data</h3>
+          <DialogContentText class="uappText">
+            The following personaly data is procured from your Spotify account when you authorize:
+            <ul class="legalDocLists">
+              <li>Your Spotify user ID</li>
+              <li>Your Spotify username</li>
+            </ul>
+          </DialogContentText>
+          <h3>Usage Data</h3>
+          <DialogContentText class="uappText">
+            The following data is collected as you use the app:
+            <ul class="legalDocLists">
+              <li>When you submit a list of albums (using the EXPORT TO SPOTIFY button), the IDs of the exported albums are saved and associated with your user account.</li>
+            </ul>
+          </DialogContentText>
+          <h3>Cookies</h3>
+          <DialogContentText class="uappText">
+            This site automatically adds a single cookie to your browser to track your login session and authenticate your requests to our API. Without this cookie, the site will not function correctly, so the site does not offer an option to exclude it. You may delete the cookie from your browser settings at any time—however, it will be replaced if you open Albumize again.
+          </DialogContentText>
+          <h3>Data Use</h3>
+          <DialogContentText class="uappText">
+            Your collected data is used in the following ways:
+            <ul class="legalDocLists">
+              <li>Your Username is gathered in order to display it on the website (to identify which user is logged in).</li>
+              <li>Your User ID is gathered to use as a unique identifier in our database system.</li>
+              <li>The list of exported albums is used to identify those albums on the page as you browse.</li>
+            </ul>
+            Your data will not be disclosed to any third parties, except:
+            <ul class="legalDocLists">
+              <li>If site ownership is transferred, your data may be provided to the new owner to ensure your user experience remains constant.</li>
+              <li>In response to a valid request, we may be required to provide your data to law enforcement, courts, or other government agencies.</li>
+            </ul>
+          </DialogContentText>
+          <h3>Data Retention</h3>
+          <DialogContentText class="uappText">
+            Your personal data and usage data will be stored for as long as your account remains in the Albumize database. You may remove this data from our system at any time by clicking the Profile icon in the upper right of the page and selecting “REMOVE ACCOUNT”. 
+          </DialogContentText>
+          <h3>Inquiries</h3>
+          <DialogContentText class="uappText">
+            If you have any questions about your data, please send an email to albumize.webmaster@gmail.com. 
+          </DialogContentText>
+        </DialogContent>
+      </div>
+    </Dialog>
+  )
 }
 
 function App() {

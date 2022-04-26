@@ -80,12 +80,25 @@ a {
   align-items: center;
 }
 
+.uappText {
+  color: var(--text);
+}
+
+.legalDocLists > li {
+  padding: 3px;
+}
+
+.legalDocLists {
+  padding-left: 20px;
+}
+
 #footer {
   height: 65px;
   background-color: var(--primary);
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
 #mainContent {
   overflow: auto;
 }
@@ -128,11 +141,19 @@ a {
 #authRequest {
   position: absolute;
   text-align: center;
-  top:50%;
+  top: 50%;
   left: 50%;
   width: 50%;
   margin: 0;
   transform: translate(-50%, -50%);
+}
+
+.authlinks {
+  color: #A6D257;
+}
+
+.authlinks:hover {
+  cursor: pointer;
 }
 
 h1 {
@@ -271,6 +292,20 @@ img {
   max-height: calc(var(--exportDivHeight));
   overflow: hidden;
   padding: 2px;
+}
+
+.modalDiv {
+  color: var(--text);
+  background-color: var(--secondary);
+  padding: 5px;
+}
+
+.legalDocModalDiv {
+  color: var(--text);
+  background-color: var(--secondary);
+  padding: 5px;
+  overflow-y: scroll;
+  max-height: 80%;
 }
 
 #exportList {
