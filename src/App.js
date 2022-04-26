@@ -481,7 +481,7 @@ function PrivacyPolicy(props) {
           <DialogContentText class="uappText">By authorizing with Spotify, you agree to the following Privacy Policy:</DialogContentText>
           <h3>Personal Data</h3>
           <DialogContentText class="uappText">
-            The following personaly data is procured from your Spotify account when you authorize:
+            The following personal data is procured from your Spotify account when you authorize:
             <ul class="legalDocLists">
               <li>Your Spotify user ID</li>
               <li>Your Spotify username</li>
