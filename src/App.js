@@ -77,8 +77,8 @@ function AppBody(props) {
   )
 }
 
-function Loading() {
-  return (<div class="loading"><CircularProgress size="200px" style={{ color: '#A6D257' }} /></div>)
+function Loading(props) {
+  return (<div class={props.fullSize ? 'loadingFullSize' : 'loading'}><CircularProgress size="200px" style={{ color: '#A6D257' }} /></div>)
 }
 
 function AuthRequest() {
@@ -220,28 +220,57 @@ function Footer() {
 }
 
 function ExportDiv(props) {
+  const [loading, setLoading] = useState(false);
+  const [newPlaylist, setNewPlaylist] = useState('');
+
+  const exportAlbums = () => {
+    setLoading(true);
+    props.createNewPlaylist()
+      .then((id) => {
+        setNewPlaylist(id);
+      })
+      .catch((err) => {
+        alert(err);
+      })
+      .finally((res) => {
+        setLoading(false);
+      });
+  }
+
   return (
-    <div id="exportDiv">
-      <div id="exportList" style={props.albumsToSend.length ? {} : { overflow: 'hidden' }}>
-        {
-          props.albumsToSend.length ? props.albumsToSend.map(album => (
-            <div class="exportListItem" key={album.id}>
-              <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
-              <div class="exportAlbumInfo">{album.name}</div>
-            </div>
-          ))
-            :
-            <div id="exportNoAlbums">
-              No albums selected to export.
-            </div>
-        }
+    <>
+    { loading ? <div class="legalDocModalDiv"><Loading fullSize="1" /></div> :
+      newPlaylist ? 
+      <div class="legalDocModalDiv">
+        <h3>New playlist created!</h3>
+        <a href={`https://open.spotify.com/playlist/${newPlaylist}`}><Button style={{ backgroundColor: '#4d874D', color: '#F5F5F5' }}>View your new playlist</Button></a>
       </div>
-      <div id="exportButton">
-        <Button disabled={!props.albumsToSend.length} variant="contained" style={{ backgroundColor: '#4d874D' }} onClick={props.createNewPlaylist}>
-          Export to Spotify
-        </Button>
+      :
+      <div id="exportDiv">
+          <>
+            <div id="exportList" style={props.albumsToSend.length ? {} : { overflow: 'hidden' }}>
+              {
+                props.albumsToSend.length ? props.albumsToSend.map(album => (
+                  <div class="exportListItem" key={album.id}>
+                    <div><img src={album.images[1].url} alt={album.name + ' album cover'} width="100%" height="100%" /></div>
+                    <div class="exportAlbumInfo">{album.name}</div>
+                  </div>
+                ))
+                  :
+                  <div id="exportNoAlbums">
+                    No albums selected to export.
+                  </div>
+              }
+            </div>
+            <div id="exportButton">
+              <Button disabled={!props.albumsToSend.length} variant="contained" style={{ backgroundColor: '#4d874D' }} onClick={exportAlbums}>
+                Export to Spotify
+              </Button>
+            </div>
+          </>
       </div>
-    </div>
+    }
+    </>
   )
 }
 
@@ -600,7 +629,7 @@ function App() {
     setAlbumsToSend(albums);
   }
 
-  const newPlaylist = () => {
+  async function newPlaylist() {
     if (albumsToSend.length == 0) {
       alert('Please select at least one album to export.');
     }
@@ -610,12 +639,12 @@ function App() {
         albums.push(album.id);
       });
 
-      DataInterface.createNewPlaylist(albums)
+      return await DataInterface.createNewPlaylist(albums)
         .then((id) => {
-          alert(`Playlist created with id ${id}`);
+          return id;
         })
         .catch((err) => {
-          alert(`Error creating album: ${err}`)
+          alert(`Error creating album: ${err}`);
         });
     }
   }

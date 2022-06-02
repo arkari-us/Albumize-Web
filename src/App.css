@@ -128,6 +128,11 @@ a {
   transform: translate(-50%, -50%);
 }
 
+.loadingFullSize {
+  aspect-ratio: 1;
+  
+}
+
 #initialPlaylistSelect {
   position: absolute;
   text-align: center;
